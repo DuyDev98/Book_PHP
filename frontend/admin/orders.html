@@ -20,6 +20,7 @@
             <li class="nav-item"><a class="nav-link" href="/admin/index.html"><i class="bi bi-speedometer2"></i> Dashboard Thống Kê</a></li>
             <li class="nav-item"><a class="nav-link" href="/admin/books.html"><i class="bi bi-journal-bookmark"></i> Quản Lý Sách</a></li>
             <li class="nav-item"><a class="nav-link" href="/admin/categories.html"><i class="bi bi-diagram-3"></i> Quản Lý Danh Mục</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/booktypes.html"><i class="bi bi-bookmark"></i> Quản Lý Loại Sách</a></li>
             <li class="nav-item"><a class="nav-link" href="/admin/authors.html"><i class="bi bi-person-lines-fill"></i> Quản Lý Tác Giả</a></li>
             <li class="nav-item"><a class="nav-link" href="/admin/publishers.html"><i class="bi bi-building"></i> Quản Lý NXB</a></li>
             <li class="nav-item"><a class="nav-link active" href="/admin/orders.html"><i class="bi bi-receipt"></i> Quản Lý Đơn Hàng</a></li>
@@ -31,6 +32,9 @@
     <div class="admin-main">
         <header class="admin-topbar">
             <h5 class="m-0 fw-bold"><i class="bi bi-receipt me-2 text-primary"></i>Quản Lý Đơn Đặt Hàng</h5>
+            <button class="btn btn-success fw-semibold" onclick="exportOrdersExcel()">
+                <i class="bi bi-file-earmark-excel me-1"></i>Xuất Excel Đơn Hàng
+            </button>
         </header>
 
         <main class="admin-content">
@@ -105,6 +109,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="/assets/js/api.js"></script>
     <script src="/assets/js/common.js"></script>
 
@@ -321,6 +326,73 @@
                     }
                 }
             });
+        }
+
+        async function exportOrdersExcel() {
+            const search = document.getElementById('searchOrderInput').value.trim();
+            const status = document.getElementById('filterStatus').value;
+
+            try {
+                showToast('Đang tạo báo cáo Excel...', 'info');
+                // Lấy tối đa 500 đơn hàng theo bộ lọc
+                const res = await api.get('/admin/orders', {
+                    search: search,
+                    status: status,
+                    page: 1,
+                    per_page: 500
+                });
+
+                if (!res.success || !res.data || res.data.length === 0) {
+                    showToast('Không có đơn hàng nào để xuất Excel.', 'warning');
+                    return;
+                }
+
+                const orders = res.data;
+                const rows = [
+                    ['DANH SÁCH ĐƠN ĐẶT HÀNG - BOOKSTORE ONLINE'],
+                    ['Thời điểm xuất báo cáo:', new Date().toLocaleString('vi-VN')],
+                    ['Bộ lọc áp dụng:', `Tìm kiếm: "${search || 'Tất cả'}" | Trạng thái: "${status || 'Tất cả'}"`],
+                    [],
+                    [
+                        'Mã Đơn',
+                        'Khách Hàng',
+                        'Tên Đăng Nhập',
+                        'Số Điện Thoại',
+                        'Ngày Đặt',
+                        'Địa Chỉ Nhận Hàng',
+                        'Ghi Chú',
+                        'Phí Vận Chuyển (VNĐ)',
+                        'Tổng Thanh Toán (VNĐ)',
+                        'Trạng Thái'
+                    ]
+                ];
+
+                orders.forEach(o => {
+                    const kh = o.khach_hang || {};
+                    rows.push([
+                        `#${o.MaDH}`,
+                        kh.HoTen || 'Khách vãng lai',
+                        kh.Username || '',
+                        kh.SDienThoai || '',
+                        formatDate(o.NgayDat),
+                        o.DiaChiGiaoHang,
+                        o.GhiChuGiaoHang || '',
+                        parseFloat(o.PhiVanChuyen) || 0,
+                        parseFloat(o.TongTien) || 0,
+                        o.TrangThai
+                    ]);
+                });
+
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(rows);
+                XLSX.utils.book_append_sheet(wb, ws, 'Danh_Sach_Don_Hang');
+
+                const today = new Date().toISOString().split('T')[0];
+                XLSX.writeFile(wb, `Danh_Sach_Don_Hang_${today}.xlsx`);
+                showToast(`Đã xuất ${orders.length} đơn hàng ra file Excel thành công!`, 'success');
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {

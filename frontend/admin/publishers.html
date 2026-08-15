@@ -20,6 +20,7 @@
             <li class="nav-item"><a class="nav-link" href="/admin/index.html"><i class="bi bi-speedometer2"></i> Dashboard Thống Kê</a></li>
             <li class="nav-item"><a class="nav-link" href="/admin/books.html"><i class="bi bi-journal-bookmark"></i> Quản Lý Sách</a></li>
             <li class="nav-item"><a class="nav-link" href="/admin/categories.html"><i class="bi bi-diagram-3"></i> Quản Lý Danh Mục</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/booktypes.html"><i class="bi bi-bookmark"></i> Quản Lý Loại Sách</a></li>
             <li class="nav-item"><a class="nav-link" href="/admin/authors.html"><i class="bi bi-person-lines-fill"></i> Quản Lý Tác Giả</a></li>
             <li class="nav-item"><a class="nav-link active" href="/admin/publishers.html"><i class="bi bi-building"></i> Quản Lý NXB</a></li>
             <li class="nav-item"><a class="nav-link" href="/admin/orders.html"><i class="bi bi-receipt"></i> Quản Lý Đơn Hàng</a></li>
@@ -118,7 +119,7 @@
                             <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditPublisherModal(${p.MaNXB}, '${p.TenNXB.replace(/'/g, "\\'")}', '${p.NamThanhLap || ''}', '${p.DiaChi || ''}')">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deletePublisher(${p.MaNXB})">
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletePublisher(${p.MaNXB}, ${p.sachs_count || 0})">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </td>
@@ -174,14 +175,19 @@
             }
         }
 
-        async function deletePublisher(id) {
+        async function deletePublisher(id, count = 0) {
+            const warningText = count > 0 
+                ? `Nhà xuất bản này hiện đang có ${count} cuốn sách trong hệ thống. Nếu xóa, các cuốn sách này sẽ hiển thị là Chưa cập nhật NXB.`
+                : 'Hành động này không thể hoàn tác.';
+
             Swal.fire({
                 title: 'Xóa NXB #' + id + '?',
-                text: 'Hành động này không thể hoàn tác.',
-                icon: 'warning',
+                text: warningText,
+                icon: count > 0 ? 'warning' : 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#dc3545',
-                confirmButtonText: 'Xác nhận xóa'
+                confirmButtonText: 'Xác nhận xóa',
+                cancelButtonText: 'Hủy'
             }).then(async r => {
                 if (r.isConfirmed) {
                     try {

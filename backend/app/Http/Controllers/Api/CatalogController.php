@@ -14,9 +14,9 @@ class CatalogController extends Controller
     // ================= DANH MỤC =================
     public function getCategories()
     {
-        // Lấy danh mục gốc kèm danh mục con (Cây danh mục đa cấp)
-        $categories = DanhMuc::with('children')->whereNull('ParentID')->get();
-        $allCategories = DanhMuc::all();
+        // Lấy danh mục gốc kèm danh mục con (Cây danh mục đa cấp) và đếm số sách
+        $categories = DanhMuc::with('children')->withCount('sachs')->whereNull('ParentID')->get();
+        $allCategories = DanhMuc::withCount('sachs')->get();
 
         return response()->json([
             'success' => true,

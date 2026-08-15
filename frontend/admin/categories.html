@@ -20,6 +20,7 @@
             <li class="nav-item"><a class="nav-link" href="/admin/index.html"><i class="bi bi-speedometer2"></i> Dashboard Thống Kê</a></li>
             <li class="nav-item"><a class="nav-link" href="/admin/books.html"><i class="bi bi-journal-bookmark"></i> Quản Lý Sách</a></li>
             <li class="nav-item"><a class="nav-link active" href="/admin/categories.html"><i class="bi bi-diagram-3"></i> Quản Lý Danh Mục</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/booktypes.html"><i class="bi bi-bookmark"></i> Quản Lý Loại Sách</a></li>
             <li class="nav-item"><a class="nav-link" href="/admin/authors.html"><i class="bi bi-person-lines-fill"></i> Quản Lý Tác Giả</a></li>
             <li class="nav-item"><a class="nav-link" href="/admin/publishers.html"><i class="bi bi-building"></i> Quản Lý NXB</a></li>
             <li class="nav-item"><a class="nav-link" href="/admin/orders.html"><i class="bi bi-receipt"></i> Quản Lý Đơn Hàng</a></li>
@@ -45,11 +46,12 @@
                                 <th>Mã DM</th>
                                 <th>Tên Danh Mục</th>
                                 <th>Cấp Bậc (Danh Mục Cha)</th>
+                                <th>Số Lượng Đầu Sách</th>
                                 <th>Thao Tác</th>
                             </tr>
                         </thead>
                         <tbody id="categoryTableBody">
-                            <tr><td colspan="4" class="text-center py-4 text-muted">Đang tải danh mục...</td></tr>
+                            <tr><td colspan="5" class="text-center py-4 text-muted">Đang tải danh mục...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -129,16 +131,18 @@
 
             tbody.innerHTML = allCategories.map(c => {
                 const parentName = c.ParentID ? `<span class="badge bg-secondary">${catMap[c.ParentID] || 'Cấp 1'}</span>` : '<span class="badge bg-primary">Danh mục gốc</span>';
+                const count = c.sachs_count || 0;
                 return `
                     <tr>
                         <td class="fw-bold text-primary">#${c.MaDanhMuc}</td>
                         <td class="fw-semibold text-dark">${c.TenDanhMuc}</td>
                         <td>${parentName}</td>
+                        <td><span class="badge bg-primary-subtle text-primary fs-6">${count} đầu sách</span></td>
                         <td>
                             <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditCatModal(${c.MaDanhMuc}, '${c.TenDanhMuc.replace(/'/g, "\\'")}', ${c.ParentID})">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${c.MaDanhMuc})">
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${c.MaDanhMuc}, ${count})">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </td>
@@ -187,14 +191,19 @@
             }
         }
 
-        async function deleteCategory(id) {
+        async function deleteCategory(id, count = 0) {
+            const warningText = count > 0 
+                ? `Danh mục này hiện đang có ${count} cuốn sách liên kết. Nếu xóa, các cuốn sách này sẽ chuyển sang trạng thái Chưa phân loại.`
+                : 'Các cuốn sách thuộc danh mục này sẽ chuyển về không phân loại.';
+
             Swal.fire({
                 title: 'Xóa danh mục #' + id + '?',
-                text: 'Các cuốn sách thuộc danh mục này sẽ chuyển về không phân loại.',
-                icon: 'warning',
+                text: warningText,
+                icon: count > 0 ? 'warning' : 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#dc3545',
-                confirmButtonText: 'Xóa ngay'
+                confirmButtonText: 'Xác nhận xóa',
+                cancelButtonText: 'Hủy'
             }).then(async r => {
                 if (r.isConfirmed) {
                     try {

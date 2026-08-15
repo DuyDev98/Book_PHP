@@ -30,12 +30,13 @@ bookPHP/
 │   ├── login.html            # Đăng nhập & Đăng ký
 │   ├── profile.html          # Hồ sơ khách hàng
 │   ├── admin/                # Phân hệ Quản trị viên
-│   │   ├── index.html        # Dashboard, Biểu đồ Chart.js 7 ngày, Cảnh báo kho
+│   │   ├── index.html        # Dashboard, Biểu đồ Chart.js 7 ngày, Xuất Excel Doanh thu
 │   │   ├── books.html        # Quản lý Sách, Upload ảnh, Nhập hàng
 │   │   ├── categories.html   # Quản lý Danh mục phân cấp cha - con
+│   │   ├── booktypes.html    # Quản lý Định dạng & Loại sách (Bìa mềm, Bìa cứng,...)
 │   │   ├── authors.html      # Quản lý Tác giả
 │   │   ├── publishers.html   # Quản lý Nhà xuất bản
-│   │   ├── orders.html       # Quản lý & duyệt đơn hàng, xóa món lẻ hoàn kho
+│   │   ├── orders.html       # Quản lý & duyệt đơn hàng, Xuất Excel đơn hàng
 │   │   └── comments.html     # Kiểm duyệt bình luận độc giả
 │   └── assets/               # CSS, JS (api.js, common.js)
 ├── start_bookstore.bat       # Script khởi động 1-click toàn bộ hệ thống
@@ -70,9 +71,13 @@ Toàn bộ 11 bảng được thiết kế chuẩn hóa 3NF trong CSDL MySQL `bo
    - Chỉ các đơn hàng có trạng thái **`TrangThai = 'Đã giao'`** mới được tính vào doanh thu thực tế.
    - Các đơn `ChoDuyet`, `Đang giao`, hoặc `Đã hủy` tuyệt đối không ghi nhận vào doanh thu.
    - Thống kê tự động hiển thị biểu đồ Chart.js 7 ngày và danh sách cảnh báo sắp hết hàng (`SoLuongTon < 10`).
+   - Hỗ trợ nút **Xuất Báo Cáo Doanh Thu ra Excel (.xlsx)** đa trang (Tổng quan, 7 ngày, Đơn mới nhất, Cảnh báo hết hàng).
+   - Hỗ trợ **Xuất Danh Sách Đơn Hàng ra Excel (.xlsx)** theo bộ lọc tìm kiếm và trạng thái.
 3. **Kiểm duyệt Đánh giá (Moderation):**
    - Độc giả bình luận mặc định ở trạng thái `pending`. Chỉ sau khi Admin duyệt (`approved`) thì bình luận mới hiển thị công khai ở trang chi tiết sách.
-4. **Lưu trữ Hình ảnh (Cloudinary & Local Storage):**
+4. **Cảnh Báo Thông Minh Khi Quản Lý Danh Mục, Tác Giả, NXB, Loại Sách:**
+   - Khi xóa một thực thể đang có sách liên kết, hệ thống cảnh báo cụ thể số lượng sách ảnh hưởng để tránh thao tác nhầm lẫn.
+5. **Lưu trữ Hình ảnh (Cloudinary & Local Storage):**
    - Cung cấp sẵn Service kết nối Cloudinary CDN qua API Key hoặc fallback tự động lưu an toàn trong máy chủ (`storage/app/public/uploads`).
 
 ---
