@@ -23,10 +23,11 @@ class OrderController extends Controller
         $khachHang = $user->khachHang;
 
         if (!$khachHang) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Hồ sơ khách hàng không tồn tại.',
-            ], 400);
+            $khachHang = \App\Models\KhachHang::create([
+                'Username' => $user->Username,
+                'HoTen' => $user->Username,
+                'DiaChi' => $request->get('DiaChiGiaoHang', ''),
+            ]);
         }
 
         $validator = Validator::make($request->all(), [
@@ -104,7 +105,8 @@ class OrderController extends Controller
                     ];
                 }
 
-                $phiVanChuyen = (float) $request->get('PhiVanChuyen', 30000); // Mặc định phí ship 30.000đ
+                // Miễn phí vận chuyển cho đơn hàng từ 250.000đ trở lên, còn lại chuẩn 30.000đ
+                $phiVanChuyen = ($tongTienHang >= 250000) ? 0 : (float) $request->get('PhiVanChuyen', 30000);
                 $tongThanhToan = $tongTienHang + $phiVanChuyen;
 
                 // 2. Tạo Đơn hàng
@@ -231,7 +233,7 @@ class OrderController extends Controller
                 ], 403);
             }
 
-            if (!in_array($order->TrangThai, ['ChoDuyet', 'Chờ xác nhận', 'Đang xử lý'])) {
+            if (!in_array($order->TrangThai, ['ChoDuyet', 'Chờ xác nhận', 'Chờ duyệt', 'Đang xử lý', 'DangXuLy'])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Đơn hàng đang giao hoặc đã hoàn thành, không thể hủy.',
@@ -239,7 +241,7 @@ class OrderController extends Controller
             }
         }
 
-        if ($order->huyDonHang()) {
+        if ($order->huyDonHang($user->isAdmin())) {
             return response()->json([
                 'success' => true,
                 'message' => 'Đã hủy đơn hàng thành công và tự động hoàn lại sách vào kho!',
@@ -294,22 +296,63 @@ class OrderController extends Controller
 
     /**
      * Admin cập nhật trạng thái đơn hàng (Duyệt, Đang giao, Đã giao, Hủy)
+     * Đảm bảo tính toán chính xác tồn kho và doanh thu thực tế
      */
     public function updateStatus(Request $request, $id)
     {
-        $request->validate([
-            'TrangThai' => 'required|string|in:ChoDuyet,Đang xử lý,Đang giao,Đã giao,Đã hủy',
-        ]);
+        $rawStatus = $request->input('TrangThai', $request->input('status', $request->input('trang_thai')));
 
+        $statusMap = [
+            'ChoDuyet' => 'ChoDuyet',
+            'Chờ xác nhận' => 'ChoDuyet',
+            'Chờ duyệt' => 'ChoDuyet',
+            'DangXuLy' => 'Đang xử lý',
+            'Đang xử lý' => 'Đang xử lý',
+            'DangGiao' => 'Đang giao',
+            'Đang giao' => 'Đang giao',
+            'DaGiao' => 'Đã giao',
+            'Đã giao' => 'Đã giao',
+            'DaHuy' => 'Đã hủy',
+            'Đã hủy' => 'Đã hủy',
+        ];
+
+        if (!isset($statusMap[$rawStatus])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Trạng thái đơn hàng không hợp lệ.',
+            ], 422);
+        }
+
+        $newStatus = $statusMap[$rawStatus];
         $order = DonHang::with('chiTiets')->findOrFail($id);
-        $newStatus = $request->TrangThai;
+        $trangThaiCu = $order->TrangThai;
 
-        if ($newStatus === 'Đã hủy') {
-            $order->huyDonHang();
-        } else {
+        if ($trangThaiCu === $newStatus) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Trạng thái đơn hàng không thay đổi.',
+                'data' => $order,
+            ]);
+        }
+
+        DB::transaction(function () use ($order, $trangThaiCu, $newStatus) {
+            // 1. Nếu chuyển sang Đã hủy: Tự động hoàn kho cho toàn bộ sản phẩm
+            if (in_array($newStatus, ['Đã hủy', 'DaHuy']) && !in_array($trangThaiCu, ['Đã hủy', 'DaHuy'])) {
+                foreach ($order->chiTiets as $ct) {
+                    Sach::where('MaSach', $ct->MaSach)->increment('SoLuongTon', $ct->SoLuong);
+                }
+            }
+
+            // 2. Nếu đơn từ Đã hủy chuyển sang trạng thái khác (Khôi phục đơn): Cần trừ lại tồn kho
+            if (in_array($trangThaiCu, ['Đã hủy', 'DaHuy']) && !in_array($newStatus, ['Đã hủy', 'DaHuy'])) {
+                foreach ($order->chiTiets as $ct) {
+                    Sach::where('MaSach', $ct->MaSach)->decrement('SoLuongTon', $ct->SoLuong);
+                }
+            }
+
             $order->TrangThai = $newStatus;
             $order->save();
-        }
+        });
 
         return response()->json([
             'success' => true,
@@ -325,7 +368,7 @@ class OrderController extends Controller
     {
         $order = DonHang::with('chiTiets')->findOrFail($id);
 
-        if (in_array($order->TrangThai, ['Đã giao', 'Đã hủy'])) {
+        if (in_array($order->TrangThai, ['Đã giao', 'DaGiao', 'Đã hủy', 'DaHuy'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'Không thể xóa món trong đơn đã giao hoặc đã hủy.',
@@ -335,15 +378,25 @@ class OrderController extends Controller
         $chiTiet = ChiTietDonHang::where('MaDH', $id)->where('MaSach', $bookId)->firstOrFail();
 
         DB::transaction(function () use ($order, $chiTiet, $bookId) {
-            // Hoàn lại kho sách
+            // 1. Hoàn lại kho sách
             Sach::where('MaSach', $bookId)->increment('SoLuongTon', $chiTiet->SoLuong);
 
-            // Xóa món
-            $amountToDeduct = $chiTiet->SoLuong * $chiTiet->DonGia;
+            // 2. Xóa món
             ChiTietDonHang::where('MaDH', $order->MaDH)->where('MaSach', $bookId)->delete();
 
-            // Tính lại tổng tiền
-            $order->TongTien = max(0, $order->TongTien - $amountToDeduct);
+            // 3. Tính lại tổng tiền và trạng thái đơn hàng
+            $remaining = ChiTietDonHang::where('MaDH', $order->MaDH)->get();
+            if ($remaining->isEmpty()) {
+                $order->TongTien = 0;
+                $order->TrangThai = 'Đã hủy';
+            } else {
+                $subtotal = $remaining->sum(function ($item) {
+                    return $item->SoLuong * $item->DonGia;
+                });
+                $shipping = ($subtotal >= 250000) ? 0 : 30000;
+                $order->PhiVanChuyen = $shipping;
+                $order->TongTien = $subtotal + $shipping;
+            }
             $order->save();
         });
 
@@ -351,6 +404,50 @@ class OrderController extends Controller
             'success' => true,
             'message' => 'Đã xóa món khỏi đơn hàng, hoàn trả vào kho và tính lại tổng tiền.',
             'data' => $order->fresh(['chiTiets.sach']),
+        ]);
+    }
+
+    /**
+     * Thống kê Top 5 sách bán chạy (chỉ tính từ các đơn Đã giao)
+     */
+    public function bestSellers()
+    {
+        $bestSellers = ChiTietDonHang::whereHas('donHang', function ($q) {
+            $q->whereIn('TrangThai', ['Đã giao', 'DaGiao']);
+        })
+        ->select('MaSach', DB::raw('SUM(SoLuong) as total_sold'))
+        ->groupBy('MaSach')
+        ->orderByDesc('total_sold')
+        ->take(5)
+        ->with('sach.tacGia')
+        ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $bestSellers,
+        ]);
+    }
+
+    /**
+     * Lấy lịch sử đơn hàng theo mã khách hàng (cho Admin hoặc chính khách hàng đó)
+     */
+    public function customerOrders(Request $request, $maKH)
+    {
+        $user = $request->user();
+        if (!$user->isAdmin()) {
+            if (!$user->khachHang || (int) $user->khachHang->MaKH !== (int) $maKH) {
+                return response()->json(['success' => false, 'message' => 'Không có quyền truy cập.'], 403);
+            }
+        }
+
+        $orders = DonHang::with(['chiTiets.sach.tacGia'])
+            ->where('MaKH', $maKH)
+            ->orderBy('NgayDat', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $orders,
         ]);
     }
 }

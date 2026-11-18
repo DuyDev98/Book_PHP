@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh Toán & Đặt Hàng - Bookstore</title>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- Custom Design System CSS -->
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+
+    <!-- 1. Top Announcement Bar -->
+    <div class="top-announcement-bar">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-danger text-uppercase px-2 py-1" style="font-size: 0.68rem;">Ưu đãi</span>
+                <span>🎉 Miễn phí vận chuyển toàn quốc cho đơn hàng từ <strong>250.000đ</strong>!</span>
+            </div>
+            <div class="d-none d-md-flex align-items-center gap-4 text-secondary">
+                <span><i class="bi bi-telephone-inbound me-1 text-warning"></i>Hotline: <strong>1900 8888</strong></span>
+                <span><i class="bi bi-shield-check me-1 text-success"></i>Bảo mật SSL 256-bit</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Header Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+        <div class="container">
+            <a class="brand-logo" href="/index.html">
+                <div class="brand-icon-wrapper">
+                    <i class="bi bi-book-half"></i>
+                </div>
+                <div>
+                    <span>Bookstore</span>
+                    <span class="brand-subtext">Tri Thức Cho Mọi Nhà</span>
+                </div>
+            </a>
+
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <a href="/cart.html" class="header-action-btn" title="Quay lại giỏ hàng">
+                    <i class="bi bi-bag fs-5"></i>
+                    <span id="cartBadge" class="header-cart-badge">0</span>
+                </a>
+                <div id="navbarAuth"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb py-2 px-3 bg-white rounded-3 border shadow-xs small">
+                <li class="breadcrumb-item"><a href="/index.html" class="text-decoration-none text-muted"><i class="bi bi-house-door me-1"></i>Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="/cart.html" class="text-decoration-none text-muted">Giỏ hàng</a></li>
+                <li class="breadcrumb-item active fw-bold text-primary">Thanh toán & Đặt hàng</li>
+            </ol>
+        </nav>
+
+        <h3 class="fw-bold mb-4 d-flex align-items-center gap-2 text-dark">
+            <i class="bi bi-bag-check-fill text-primary"></i> Xác Nhận Đơn Hàng & Đặt Mua
+        </h3>
+
+        <div id="checkoutContent">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="text-muted small mt-2">Đang tải thông tin thanh toán...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="pt-5 pb-4 mt-auto">
+        <div class="container text-center small text-secondary">
+            © 2026 <strong>Bookstore E-Commerce</strong>. All Rights Reserved. Hệ thống phân phối sách trực tuyến chính hãng.
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/common.js"></script>
+
+    <script>
+        let cartData = null;
+
+        async function initCheckout() {
+            if (!api.getToken()) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            try {
+                const cartRes = await api.get('/cart');
+                if (!cartRes.success || !cartRes.data || cartRes.data.items.length === 0) {
+                    Swal.fire({
+                        title: 'Giỏ hàng trống',
+                        text: 'Bạn chưa có cuốn sách nào trong giỏ hàng để thanh toán.',
+                        icon: 'warning',
+                        confirmButtonColor: '#2563eb'
+                    }).then(() => {
+                        window.location.href = '/books.html';
+                    });
+                    return;
+                }
+                cartData = cartRes.data;
+
+                const userRes = await api.get('/auth/me');
+                const kh = userRes.data.khachHang || {};
+
+                renderCheckoutForm(kh);
+            } catch (err) {
+                document.getElementById('checkoutContent').innerHTML = `
+                    <div class="alert alert-danger rounded-4 py-4">Lỗi tải dữ liệu thanh toán: ${err.message}</div>
+                `;
+            }
+        }
+
+        function renderCheckoutForm(kh) {
+            const itemsList = cartData.items.map(item => `
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="${item.AnhBia || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&q=80'}" class="rounded shadow-xs" style="width: 42px; height: 56px; object-fit: contain; background: #f8fafc;">
+                        <div>
+                            <div class="fw-semibold text-dark small text-truncate" style="max-width: 220px;" title="${item.TenSach}">${item.TenSach}</div>
+                            <small class="text-muted">${formatMoney(item.DonGia)} x ${item.SoLuong}</small>
+                        </div>
+                    </div>
+                    <span class="fw-bold text-danger text-nowrap">${formatMoney(item.ThanhTien)}</span>
+                </div>
+            `).join('');
+
+            const isFreeShip = (cartData.total_amount >= 250000);
+            const shippingFee = isFreeShip ? 0 : 30000;
+            const totalToPay = cartData.total_amount + shippingFee;
+
+            const html = `
+                <div class="row g-4">
+                    <!-- Form Thông tin giao hàng -->
+                    <div class="col-lg-7">
+                        <div class="card shadow-sm border-0 rounded-4 p-4 p-md-5">
+                            <h5 class="fw-bold mb-4 pb-2 border-bottom text-dark d-flex align-items-center">
+                                <i class="bi bi-geo-alt-fill text-primary me-2"></i>1. Thông Tin Nhận Hàng
+                            </h5>
+                            <form onsubmit="handlePlaceOrder(event)">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-secondary">Họ và tên người nhận <span class="text-danger">*</span></label>
+                                    <input type="text" id="orderHoTen" class="form-control rounded-3" value="${kh.HoTen || ''}" required placeholder="Họ tên đầy đủ...">
+                                </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold text-secondary">Số điện thoại <span class="text-danger">*</span></label>
+                                        <input type="text" id="orderPhone" class="form-control rounded-3" value="${kh.SDienThoai || ''}" required placeholder="Số điện thoại nhận sách...">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold text-secondary">Email nhận thông báo đơn</label>
+                                        <input type="email" id="orderEmail" class="form-control rounded-3" value="${kh.Email || ''}" placeholder="email@example.com">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-secondary">Địa chỉ giao hàng tận nơi <span class="text-danger">*</span></label>
+                                    <textarea id="orderAddress" class="form-control rounded-3" rows="2" placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố..." required>${kh.DiaChi || ''}</textarea>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold text-secondary">Ghi chú cho bưu tá (Tùy chọn)</label>
+                                    <textarea id="orderNote" class="form-control rounded-3" rows="2" placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi đến..."></textarea>
+                                </div>
+
+                                <!-- Phương thức thanh toán -->
+                                <h5 class="fw-bold mb-3 pb-2 border-bottom text-dark d-flex align-items-center">
+                                    <i class="bi bi-credit-card-2-front-fill text-primary me-2"></i>2. Phương Thức Thanh Toán
+                                </h5>
+                                <div class="card p-3 border-primary mb-4 bg-primary-subtle rounded-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="codMethod" checked>
+                                        <label class="form-check-label fw-bold text-dark" for="codMethod">
+                                            <i class="bi bi-cash-coin me-1 text-success"></i> Thanh toán tiền mặt khi nhận hàng (COD)
+                                        </label>
+                                        <div class="small text-secondary mt-1">
+                                            An tâm tuyệt đối. Bạn nhận bưu phẩm, kiểm tra sách nguyên vẹn mới thanh toán tiền cho nhân viên bưu tá.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" id="btnPlaceOrder" class="btn btn-warning btn-lg w-100 fw-bold text-dark rounded-pill shadow-sm py-3">
+                                    <i class="bi bi-check-circle-fill me-2"></i>Xác Nhận Đặt Hàng (${formatMoney(totalToPay)})
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Tóm tắt đơn hàng -->
+                    <div class="col-lg-5">
+                        <div class="card shadow-sm border-0 rounded-4 p-4 sticky-top" style="top: 90px;">
+                            <h5 class="fw-bold mb-3 border-bottom pb-2 text-dark d-flex align-items-center">
+                                <i class="bi bi-receipt me-2 text-primary"></i>Đơn Hàng Của Bạn (${cartData.total_items} cuốn)
+                            </h5>
+                            <div class="mb-3" style="max-height: 280px; overflow-y: auto;">
+                                ${itemsList}
+                            </div>
+                            <div class="d-flex justify-content-between mb-2 small">
+                                <span class="text-secondary">Tiền sách:</span>
+                                <strong class="text-dark">${formatMoney(cartData.total_amount)}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3 small">
+                                <span class="text-secondary">Phí vận chuyển:</span>
+                                <strong class="${isFreeShip ? 'text-success' : 'text-dark'}">
+                                    ${isFreeShip ? 'MIỄN PHÍ' : '30.000 đ'}
+                                </strong>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fs-6 fw-bold text-secondary">Tổng thanh toán:</span>
+                                <span class="fs-4 fw-bold text-danger">${formatMoney(totalToPay)}</span>
+                            </div>
+                            <div class="mt-3 p-3 bg-light rounded-3 small text-muted">
+                                <i class="bi bi-shield-lock-fill text-success me-1"></i>Đơn hàng được bảo vệ bởi chính sách kiểm tra hàng trước khi thanh toán.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('checkoutContent').innerHTML = html;
+        }
+
+        async function handlePlaceOrder(e) {
+            e.preventDefault();
+
+            const address = document.getElementById('orderAddress').value.trim();
+            const note = document.getElementById('orderNote').value.trim();
+            const hoTen = document.getElementById('orderHoTen').value.trim();
+            const phone = document.getElementById('orderPhone').value.trim();
+            const email = document.getElementById('orderEmail').value.trim();
+
+            if (!address || !hoTen || !phone) {
+                showToast('Vui lòng điền đầy đủ họ tên, SĐT và địa chỉ giao hàng.', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('btnPlaceOrder');
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Đang khởi tạo đơn hàng...`;
+
+            try {
+                await api.put('/auth/profile', {
+                    HoTen: hoTen,
+                    SDienThoai: phone,
+                    Email: email,
+                    DiaChi: address
+                });
+
+                const isFreeShip = (cartData.total_amount >= 250000);
+                const res = await api.post('/orders/create', {
+                    DiaChiGiaoHang: `${hoTen} (${phone}) - ${address}`,
+                    GhiChuGiaoHang: note,
+                    PhiVanChuyen: isFreeShip ? 0 : 30000
+                });
+
+                if (res.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đặt Hàng Thành Công!',
+                        text: `Mã đơn hàng của bạn: #${res.data.MaDH}. Bookstore sẽ liên hệ và giao sách trong thời gian sớm nhất!`,
+                        confirmButtonText: 'Xem Lịch Sử Đơn Hàng',
+                        confirmButtonColor: '#2563eb'
+                    }).then(() => {
+                        window.location.href = '/orders.html';
+                    });
+                }
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Đặt hàng thất bại',
+                    text: err.message,
+                    confirmButtonColor: '#dc2626'
+                });
+                btn.disabled = false;
+                btn.innerHTML = `<i class="bi bi-check-circle-fill me-2"></i>Thử lại đặt hàng`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initCheckout);
+    </script>
+</body>
+</html>

@@ -21,16 +21,16 @@ class AdminDashboardController extends Controller
         $now = Carbon::now();
 
         // 1. Tổng doanh thu tháng (Chỉ đơn 'Đã giao' trong tháng này)
-        $monthlyRevenue = DonHang::where('TrangThai', 'Đã giao')
+        $monthlyRevenue = DonHang::whereIn('TrangThai', ['Đã giao', 'DaGiao'])
             ->whereMonth('NgayDat', $now->month)
             ->whereYear('NgayDat', $now->year)
             ->sum('TongTien');
 
-        // 2. Tổng doanh thu toàn thời gian
-        $totalRevenue = DonHang::where('TrangThai', 'Đã giao')->sum('TongTien');
+        // 2. Tổng doanh thu toàn thời gian (Chỉ đơn 'Đã giao')
+        $totalRevenue = DonHang::whereIn('TrangThai', ['Đã giao', 'DaGiao'])->sum('TongTien');
 
-        // 3. Tổng số đơn hàng trong tháng (Loại trừ 'Đã hủy')
-        $monthlyOrderCount = DonHang::where('TrangThai', '!=', 'Đã hủy')
+        // 3. Tổng số đơn hàng trong tháng (Loại trừ hoàn toàn các đơn 'Đã hủy')
+        $monthlyOrderCount = DonHang::whereNotIn('TrangThai', ['Đã hủy', 'DaHuy'])
             ->whereMonth('NgayDat', $now->month)
             ->whereYear('NgayDat', $now->year)
             ->count();
@@ -40,7 +40,7 @@ class AdminDashboardController extends Controller
         $totalCustomers = KhachHang::count();
 
         // 5. Số đơn chờ duyệt & bình luận chờ duyệt
-        $pendingOrders = DonHang::where('TrangThai', 'ChoDuyet')->count();
+        $pendingOrders = DonHang::whereIn('TrangThai', ['ChoDuyet', 'Chờ xác nhận', 'Chờ duyệt'])->count();
         $pendingComments = BinhLuan::where('TrangThai', 'pending')->count();
 
         // 6. Cảnh báo hết hàng (Sách có SoLuongTon < 10 theo tài liệu)
@@ -49,9 +49,9 @@ class AdminDashboardController extends Controller
             ->take(10)
             ->get();
 
-        // 7. Biểu đồ doanh thu 7 ngày gần nhất (Chỉ đơn 'Đã giao')
+        // 7. Biểu đồ doanh thu 7 ngày gần nhất (Chỉ tính đơn 'Đã giao')
         $sevenDaysAgo = Carbon::now()->subDays(6)->startOfDay();
-        $dailyRevenuesRaw = DonHang::where('TrangThai', 'Đã giao')
+        $dailyRevenuesRaw = DonHang::whereIn('TrangThai', ['Đã giao', 'DaGiao'])
             ->where('NgayDat', '>=', $sevenDaysAgo)
             ->select(
                 DB::raw('DATE(NgayDat) as date'),

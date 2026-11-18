@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Loại Sách & Định Dạng - Admin Bookstore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="/assets/css/admin.css">
+</head>
+<body class="admin-body">
+
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <i class="bi bi-book-half text-warning fs-4"></i>
+            <span>Bookstore Admin</span>
+        </div>
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item"><a class="nav-link" href="/admin/index.html"><i class="bi bi-speedometer2"></i> Dashboard Thống Kê</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/books.html"><i class="bi bi-journal-bookmark"></i> Quản Lý Sách</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/categories.html"><i class="bi bi-diagram-3"></i> Quản Lý Danh Mục</a></li>
+            <li class="nav-item"><a class="nav-link active" href="/admin/booktypes.html"><i class="bi bi-bookmark"></i> Quản Lý Loại Sách</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/authors.html"><i class="bi bi-person-lines-fill"></i> Quản Lý Tác Giả</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/publishers.html"><i class="bi bi-building"></i> Quản Lý NXB</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/orders.html"><i class="bi bi-receipt"></i> Quản Lý Đơn Hàng</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/comments.html"><i class="bi bi-chat-dots"></i> Kiểm Duyệt Bình Luận</a></li>
+            <li class="nav-item mt-4 border-top border-secondary pt-3"><a class="nav-link text-warning" href="/index.html"><i class="bi bi-shop"></i> Xem Trang Khách Hàng</a></li>
+        </ul>
+    </aside>
+
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <h5 class="m-0 fw-bold"><i class="bi bi-bookmark me-2 text-primary"></i>Quản Lý Định Dạng & Loại Sách</h5>
+            <button class="btn btn-primary fw-semibold" onclick="openAddModal()">
+                <i class="bi bi-plus-lg me-1"></i>Thêm Loại Sách
+            </button>
+        </header>
+
+        <main class="admin-content">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Mã Loại</th>
+                                <th>Tên Loại Sách / Định Dạng</th>
+                                <th>Số Lượng Đầu Sách</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookTypeTableBody">
+                            <tr><td colspan="4" class="text-center py-4 text-muted">Đang tải danh sách loại sách...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Loại Sách -->
+    <div class="modal fade" id="bookTypeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content rounded-4">
+                <form onsubmit="handleSaveBookType(event)">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" id="modalTitle">Thêm Loại Sách</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <input type="hidden" id="typeId">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Tên loại sách / định dạng <span class="text-danger">*</span></label>
+                            <input type="text" id="typeName" class="form-control" placeholder="Ví dụ: Bìa mềm, Bìa cứng, Bìa da cao cấp, Ebook..." required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Lưu loại sách</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/common.js"></script>
+
+    <script>
+        let allTypes = [];
+
+        async function loadBookTypes() {
+            try {
+                const res = await api.get('/loaisach');
+                const tbody = document.getElementById('bookTypeTableBody');
+                if (!res.success || !res.data || res.data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">Chưa có loại sách nào.</td></tr>';
+                    return;
+                }
+
+                allTypes = res.data;
+                tbody.innerHTML = allTypes.map(t => `
+                    <tr>
+                        <td class="fw-bold text-primary">#${t.MaLoaiSach}</td>
+                        <td class="fw-semibold text-dark">${t.TenLoaiSach}</td>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary fs-6">${t.sachs_count || 0} đầu sách</span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(${t.MaLoaiSach}, '${t.TenLoaiSach.replace(/'/g, "\\'")}')">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteBookType(${t.MaLoaiSach}, ${t.sachs_count || 0})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('typeId').value = '';
+            document.getElementById('typeName').value = '';
+            document.getElementById('modalTitle').textContent = 'Thêm Loại Sách / Định Dạng Mới';
+            new bootstrap.Modal(document.getElementById('bookTypeModal')).show();
+        }
+
+        function openEditModal(id, name) {
+            document.getElementById('typeId').value = id;
+            document.getElementById('typeName').value = name;
+            document.getElementById('modalTitle').textContent = `Chỉnh Sửa Loại Sách #${id}`;
+            new bootstrap.Modal(document.getElementById('bookTypeModal')).show();
+        }
+
+        async function handleSaveBookType(e) {
+            e.preventDefault();
+            const id = document.getElementById('typeId').value;
+            const name = document.getElementById('typeName').value.trim();
+
+            try {
+                let res;
+                if (id) {
+                    res = await api.put(`/loaisach/${id}`, { TenLoaiSach: name });
+                } else {
+                    res = await api.post('/loaisach', { TenLoaiSach: name });
+                }
+
+                if (res.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('bookTypeModal')).hide();
+                    showToast(res.message, 'success');
+                    loadBookTypes();
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function deleteBookType(id, count) {
+            const warningText = count > 0 
+                ? `Loại sách này hiện đang gắn với ${count} đầu sách trong kho. Nếu xóa, các cuốn sách này sẽ chuyển về chưa phân loại định dạng.`
+                : 'Bạn có chắc chắn muốn xóa loại sách này không?';
+
+            Swal.fire({
+                title: `Xóa loại sách #${id}?`,
+                text: warningText,
+                icon: count > 0 ? 'warning' : 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Đồng ý xóa',
+                cancelButtonText: 'Hủy'
+            }).then(async r => {
+                if (r.isConfirmed) {
+                    try {
+                        const res = await api.delete(`/loaisach/${id}`);
+                        if (res.success) {
+                            showToast(res.message, 'info');
+                            loadBookTypes();
+                        }
+                    } catch (err) {
+                        showToast(err.message, 'error');
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadBookTypes);
+    </script>
+</body>
+</html>

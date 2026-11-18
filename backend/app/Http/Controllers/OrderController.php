@@ -221,11 +221,11 @@ class OrderController extends Controller
             }
         }
 
-        if ($donHang->TrangThai !== 'ChoDuyet') {
-            return back()->with('error', 'Chỉ có thể hủy đơn hàng khi đơn đang ở trạng thái Chờ Duyệt.');
+        if (!$user->isAdmin() && !in_array($donHang->TrangThai, ['ChoDuyet', 'Chờ xác nhận', 'Chờ duyệt', 'Đang xử lý', 'DangXuLy'])) {
+            return back()->with('error', 'Đơn hàng đang giao hoặc đã hoàn thành, không thể hủy.');
         }
 
-        $result = $donHang->huyDonHang();
+        $result = $donHang->huyDonHang($user->isAdmin());
 
         if ($result) {
             return back()->with('success', 'Đơn hàng đã được hủy thành công. Số lượng sản phẩm đã được tự động hoàn lại kho.');

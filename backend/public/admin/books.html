@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Sách - Admin Bookstore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="/assets/css/admin.css">
+</head>
+<body class="admin-body">
+
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <i class="bi bi-book-half text-warning fs-4"></i>
+            <span>Bookstore Admin</span>
+        </div>
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item"><a class="nav-link" href="/admin/index.html"><i class="bi bi-speedometer2"></i> Dashboard Thống Kê</a></li>
+            <li class="nav-item"><a class="nav-link active" href="/admin/books.html"><i class="bi bi-journal-bookmark"></i> Quản Lý Sách</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/categories.html"><i class="bi bi-diagram-3"></i> Quản Lý Danh Mục</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/booktypes.html"><i class="bi bi-bookmark"></i> Quản Lý Loại Sách</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/authors.html"><i class="bi bi-person-lines-fill"></i> Quản Lý Tác Giả</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/publishers.html"><i class="bi bi-building"></i> Quản Lý NXB</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/orders.html"><i class="bi bi-receipt"></i> Quản Lý Đơn Hàng</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/comments.html"><i class="bi bi-chat-dots"></i> Kiểm Duyệt Bình Luận</a></li>
+            <li class="nav-item mt-4 border-top border-secondary pt-3"><a class="nav-link text-warning" href="/index.html"><i class="bi bi-shop"></i> Xem Trang Khách Hàng</a></li>
+        </ul>
+    </aside>
+
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <h5 class="m-0 fw-bold"><i class="bi bi-journal-bookmark me-2 text-primary"></i>Quản Lý Kho Sách</h5>
+            <button class="btn btn-primary fw-semibold" onclick="openAddBookModal()">
+                <i class="bi bi-plus-lg me-1"></i>Thêm Sách Mới
+            </button>
+        </header>
+
+        <main class="admin-content">
+            <!-- Search & Filter Card -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body p-3">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-5">
+                            <input id="searchBookInput" type="text" class="form-control" placeholder="Tìm tên sách, tác giả..." onkeyup="if(event.key==='Enter') loadAdminBooks(1)">
+                        </div>
+                        <div class="col-md-3">
+                            <select id="filterCategory" class="form-select" onchange="loadAdminBooks(1)">
+                                <option value="">-- Tất cả danh mục --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-primary w-100" onclick="loadAdminBooks(1)">
+                                <i class="bi bi-search me-1"></i>Lọc
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Books Table -->
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Ảnh</th>
+                                <th>Tên Sách</th>
+                                <th>Danh Mục</th>
+                                <th>Tác Giả</th>
+                                <th>Giá Bán</th>
+                                <th>Giảm Giá</th>
+                                <th>Tồn Kho</th>
+                                <th>Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="booksTableBody">
+                            <tr><td colspan="8" class="text-center py-4 text-muted">Đang tải danh sách sách...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-white p-3 d-flex justify-content-between align-items-center">
+                    <div class="small text-muted" id="pageInfo"></div>
+                    <ul id="pagination" class="pagination pagination-sm m-0"></ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Thêm / Sửa Sách -->
+    <div class="modal fade" id="bookModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content rounded-4">
+                <form id="bookForm" onsubmit="handleSaveBook(event)">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" id="bookModalTitle">Thêm Sách Mới</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <input type="hidden" id="bookId">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Tên cuốn sách <span class="text-danger">*</span></label>
+                            <input type="text" id="bTitle" class="form-control" required>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Danh mục</label>
+                                <select id="bCategory" class="form-select"></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Tác giả</label>
+                                <select id="bAuthor" class="form-select"></select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Nhà xuất bản</label>
+                                <select id="bPublisher" class="form-select"></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Loại sách</label>
+                                <select id="bType" class="form-select"></select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Giá bìa (GiaBan) <span class="text-danger">*</span></label>
+                                <input type="number" id="bPrice" class="form-control" min="0" required oninput="calcSalePreview()">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">% Giảm giá (0 - 100)</label>
+                                <input type="number" id="bDiscount" class="form-control" min="0" max="100" value="0" oninput="calcSalePreview()">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Giá bán sau sale</label>
+                                <input type="text" id="bSalePreview" class="form-control bg-light fw-bold text-danger" readonly value="0 đ">
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Số lượng tồn kho <span class="text-danger">*</span></label>
+                                <input type="number" id="bStock" class="form-control" min="0" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Năm xuất bản</label>
+                                <input type="number" id="bYear" class="form-control" value="2024">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Lần tái bản</label>
+                                <input type="number" id="bEdition" class="form-control" value="1">
+                            </div>
+                        </div>
+
+                        <!-- Upload File Ảnh Bìa (Hỗ trợ Cloudinary / Local) -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Ảnh bìa (Tải tệp hoặc Cloudinary CDN)</label>
+                            <input type="file" id="bCoverFile" class="form-control" accept="image/*">
+                            <small class="text-muted">Định dạng .jpg, .png (tối đa 5MB) - Tự động upload lên Cloudinary / Storage</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Mô tả tóm tắt nội dung sách</label>
+                            <textarea id="bDesc" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" id="btnSubmitBook" class="btn btn-primary fw-semibold">Lưu sách</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/common.js"></script>
+
+    <script>
+        let cachedCategories = [];
+        let cachedAuthors = [];
+        let cachedPublishers = [];
+        let cachedTypes = [];
+
+        function calcSalePreview() {
+            const price = parseFloat(document.getElementById('bPrice').value) || 0;
+            const discount = parseInt(document.getElementById('bDiscount').value) || 0;
+            if (discount > 0 && price > 0) {
+                const sale = price * (100 - discount) / 100;
+                document.getElementById('bSalePreview').value = formatMoney(sale);
+            } else {
+                document.getElementById('bSalePreview').value = formatMoney(price);
+            }
+        }
+
+        async function initBookPage() {
+            if (!api.getToken() || localStorage.getItem('bookstore_role') !== 'admin') {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            try {
+                // Tải danh mục, tác giả, NXB, loại sách
+                const [catRes, authRes, pubRes, typeRes] = await Promise.all([
+                    api.get('/danhmuc'),
+                    api.get('/tacgia'),
+                    api.get('/nhaxuatban'),
+                    api.get('/loaisach')
+                ]);
+
+                cachedCategories = catRes.data ? catRes.data.list : [];
+                cachedAuthors = authRes.data || [];
+                cachedPublishers = pubRes.data || [];
+                cachedTypes = typeRes.data || [];
+
+                populateDropdowns();
+                loadAdminBooks(1);
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        function populateDropdowns() {
+            // Category filter & modal
+            const filterCat = document.getElementById('filterCategory');
+            const bCat = document.getElementById('bCategory');
+            bCat.innerHTML = '<option value="">-- Chọn danh mục --</option>';
+            cachedCategories.forEach(c => {
+                const opt1 = new Option(c.TenDanhMuc, c.MaDanhMuc);
+                const opt2 = new Option(c.TenDanhMuc, c.MaDanhMuc);
+                filterCat.add(opt1);
+                bCat.add(opt2);
+            });
+
+            // Author
+            const bAuth = document.getElementById('bAuthor');
+            bAuth.innerHTML = '<option value="">-- Chọn tác giả --</option>';
+            cachedAuthors.forEach(a => bAuth.add(new Option(a.TenTG, a.MaTG)));
+
+            // Publisher
+            const bPub = document.getElementById('bPublisher');
+            bPub.innerHTML = '<option value="">-- Chọn NXB --</option>';
+            cachedPublishers.forEach(p => bPub.add(new Option(p.TenNXB, p.MaNXB)));
+
+            // Type
+            const bType = document.getElementById('bType');
+            bType.innerHTML = '<option value="">-- Chọn loại sách --</option>';
+            cachedTypes.forEach(t => bType.add(new Option(t.TenLoaiSach, t.MaLoaiSach)));
+        }
+
+        async function loadAdminBooks(page = 1) {
+            const q = document.getElementById('searchBookInput').value.trim();
+            const cat = document.getElementById('filterCategory').value;
+
+            try {
+                const res = await api.get('/sach', {
+                    q: q,
+                    category_id: cat,
+                    page: page,
+                    per_page: 10
+                });
+
+                if (res.success) {
+                    renderBooksTable(res.data);
+                    renderPagination(res.pagination);
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        function renderBooksTable(books) {
+            const tbody = document.getElementById('booksTableBody');
+            if (!books || books.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">Không có cuốn sách nào.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = books.map(b => {
+                const hasSale = b.IsSale && b.GiaSale;
+                const saleText = hasSale ? `<span class="badge bg-danger">-${b.PhanTramGiamGia}%</span>` : '<span class="text-muted">0%</span>';
+                const stockBadge = (b.SoLuongTon < 10) 
+                    ? `<span class="badge bg-danger">${b.SoLuongTon} (Sắp hết)</span>` 
+                    : `<span class="badge bg-success">${b.SoLuongTon}</span>`;
+
+                return `
+                    <tr>
+                        <td>
+                            <img src="${b.AnhBia || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&q=80'}" class="rounded" style="width: 45px; height: 60px; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&q=80'">
+                        </td>
+                        <td>
+                            <strong class="text-dark d-block">${b.TenSach}</strong>
+                            <small class="text-muted">ID: ${b.MaSach}</small>
+                        </td>
+                        <td>${b.danh_muc ? b.danh_muc.TenDanhMuc : '-'}</td>
+                        <td>${b.tac_gia ? b.tac_gia.TenTG : '-'}</td>
+                        <td class="fw-semibold">${formatMoney(b.GiaBan)}</td>
+                        <td>${saleText}</td>
+                        <td>${stockBadge}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" title="Chỉnh sửa" onclick="openEditBookModal(${b.MaSach})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" title="Xóa sách" onclick="deleteBook(${b.MaSach})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderPagination(p) {
+            document.getElementById('pageInfo').textContent = `Hiển thị trang ${p.current_page} / ${p.last_page} (Tổng ${p.total} sách)`;
+            const container = document.getElementById('pagination');
+            if (p.last_page <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            for (let i = 1; i <= p.last_page; i++) {
+                html += `<li class="page-item ${p.current_page === i ? 'active' : ''}">
+                    <button class="page-link" onclick="loadAdminBooks(${i})">${i}</button>
+                </li>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function openAddBookModal() {
+            document.getElementById('bookForm').reset();
+            document.getElementById('bookId').value = '';
+            document.getElementById('bookModalTitle').textContent = 'Thêm Sách Mới Vào Kho';
+            calcSalePreview();
+            new bootstrap.Modal(document.getElementById('bookModal')).show();
+        }
+
+        async function openEditBookModal(id) {
+            try {
+                const res = await api.get(`/sach/${id}`);
+                if (res.success && res.data) {
+                    const b = res.data;
+                    document.getElementById('bookId').value = b.MaSach;
+                    document.getElementById('bookModalTitle').textContent = `Chỉnh Sửa Sách: #${b.MaSach}`;
+                    document.getElementById('bTitle').value = b.TenSach;
+                    document.getElementById('bCategory').value = b.MaDanhMuc || '';
+                    document.getElementById('bAuthor').value = b.MaTG || '';
+                    document.getElementById('bPublisher').value = b.MaNXB || '';
+                    document.getElementById('bType').value = b.MaLoaiSach || '';
+                    document.getElementById('bPrice').value = b.GiaBan;
+                    document.getElementById('bDiscount').value = b.PhanTramGiamGia || 0;
+                    document.getElementById('bStock').value = b.SoLuongTon;
+                    document.getElementById('bYear').value = b.NamXuatBan || '';
+                    document.getElementById('bEdition').value = b.LanTaiBan || '';
+                    document.getElementById('bDesc').value = b.MoTa || '';
+                    calcSalePreview();
+                    new bootstrap.Modal(document.getElementById('bookModal')).show();
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function handleSaveBook(e) {
+            e.preventDefault();
+            const id = document.getElementById('bookId').value;
+            const formData = new FormData();
+
+            formData.append('TenSach', document.getElementById('bTitle').value.trim());
+            formData.append('GiaBan', document.getElementById('bPrice').value);
+            formData.append('PhanTramGiamGia', document.getElementById('bDiscount').value);
+            formData.append('SoLuongTon', document.getElementById('bStock').value);
+            formData.append('MaDanhMuc', document.getElementById('bCategory').value);
+            formData.append('MaTG', document.getElementById('bAuthor').value);
+            formData.append('MaNXB', document.getElementById('bPublisher').value);
+            formData.append('MaLoaiSach', document.getElementById('bType').value);
+            formData.append('NamXuatBan', document.getElementById('bYear').value);
+            formData.append('LanTaiBan', document.getElementById('bEdition').value);
+            formData.append('MoTa', document.getElementById('bDesc').value);
+
+            const fileInput = document.getElementById('bCoverFile');
+            if (fileInput.files.length > 0) {
+                formData.append('AnhBia', fileInput.files[0]);
+            }
+
+            const btn = document.getElementById('btnSubmitBook');
+            btn.disabled = true;
+
+            try {
+                let res;
+                if (id) {
+                    res = await api.post(`/sach/${id}`, formData);
+                } else {
+                    res = await api.post('/sach', formData);
+                }
+
+                if (res.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('bookModal')).hide();
+                    showToast(res.message, 'success');
+                    loadAdminBooks(1);
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function deleteBook(id) {
+            Swal.fire({
+                title: 'Xóa cuốn sách #' + id + '?',
+                text: 'Hành động này sẽ xóa cuốn sách khỏi hệ thống.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Xác nhận xóa'
+            }).then(async r => {
+                if (r.isConfirmed) {
+                    try {
+                        const res = await api.delete(`/sach/${id}`);
+                        if (res.success) {
+                            showToast(res.message, 'info');
+                            loadAdminBooks(1);
+                        }
+                    } catch (err) {
+                        showToast(err.message, 'error');
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initBookPage);
+    </script>
+</body>
+</html>

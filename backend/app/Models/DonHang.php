@@ -41,16 +41,25 @@ class DonHang extends Model
 
     /**
      * Hủy đơn hàng và tự động hoàn kho theo tài liệu nghiệp vụ
+     * 
+     * @param bool $force Cho phép Admin hủy ngay cả khi đơn đã giao (hoàn trả hàng)
      */
-    public function huyDonHang(): bool
+    public function huyDonHang(bool $force = false): bool
     {
-        if ($this->TrangThai === 'DaHuy' || $this->TrangThai === 'Đã hủy' || $this->TrangThai === 'DaGiao' || $this->TrangThai === 'Đã giao') {
+        // Nếu đã ở trạng thái Đã hủy thì không hủy lại
+        if (in_array($this->TrangThai, ['DaHuy', 'Đã hủy'])) {
+            return false;
+        }
+
+        // Khách hàng không thể hủy đơn đã giao thành công (trừ khi có quyền Admin force cancel)
+        if (!$force && in_array($this->TrangThai, ['DaGiao', 'Đã giao'])) {
             return false;
         }
 
         return DB::transaction(function () {
             // Hoàn lại tồn kho cho từng sản phẩm trong đơn
-            foreach ($this->chiTiets as $chiTiet) {
+            $items = $this->chiTiets()->get();
+            foreach ($items as $chiTiet) {
                 Sach::where('MaSach', $chiTiet->MaSach)
                     ->increment('SoLuongTon', $chiTiet->SoLuong);
             }

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tất Cả Sách - Bookstore Trực Tuyến</title>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- Custom Design System CSS -->
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+
+    <!-- 1. Top Announcement Bar -->
+    <div class="top-announcement-bar">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-danger text-uppercase px-2 py-1" style="font-size: 0.68rem;">Ưu đãi</span>
+                <span>🎉 Miễn phí vận chuyển toàn quốc cho đơn hàng từ <strong>250.000đ</strong>!</span>
+            </div>
+            <div class="d-none d-md-flex align-items-center gap-4 text-secondary">
+                <span><i class="bi bi-telephone-inbound me-1 text-warning"></i>Hotline: <strong>1900 8888</strong></span>
+                <span><i class="bi bi-shield-check me-1 text-success"></i>100% Sách Thật</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Header Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+        <div class="container">
+            <a class="brand-logo" href="/index.html">
+                <div class="brand-icon-wrapper">
+                    <i class="bi bi-book-half"></i>
+                </div>
+                <div>
+                    <span>Bookstore</span>
+                    <span class="brand-subtext">Tri Thức Cho Mọi Nhà</span>
+                </div>
+            </a>
+
+            <button class="navbar-toggler border-0 text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <i class="bi bi-list fs-2"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/index.html"><i class="bi bi-house-door"></i>Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/books.html"><i class="bi bi-grid"></i>Tất cả sách</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link sale-nav-link" href="/books.html?is_sale=true">
+                            <i class="bi bi-fire text-danger"></i>Khuyến mãi
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    <a href="/cart.html" class="header-action-btn" title="Giỏ hàng của bạn">
+                        <i class="bi bi-bag fs-5"></i>
+                        <span id="cartBadge" class="header-cart-badge">0</span>
+                    </a>
+                    <div id="navbarAuth" class="d-flex align-items-center"></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb py-2 px-3 bg-white rounded-3 border shadow-xs small">
+                <li class="breadcrumb-item"><a href="/index.html" class="text-decoration-none text-muted"><i class="bi bi-house-door me-1"></i>Trang chủ</a></li>
+                <li class="breadcrumb-item active fw-bold text-primary" aria-current="page">Kho Tàng Sách</li>
+            </ol>
+        </nav>
+
+        <div class="row g-4">
+            <!-- Sidebar Filters -->
+            <div class="col-lg-3">
+                <div class="card shadow-sm border-0 rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                            <h6 class="fw-bold m-0 d-flex align-items-center text-dark">
+                                <i class="bi bi-funnel-fill text-primary me-2"></i>Bộ Lọc Sách
+                            </h6>
+                            <button class="btn btn-link btn-sm text-decoration-none p-0 text-danger fw-semibold" onclick="resetFilters()">
+                                <i class="bi bi-arrow-counterclockwise"></i> Đặt lại
+                            </button>
+                        </div>
+
+                        <!-- Tìm từ khóa -->
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Từ khóa tìm kiếm</label>
+                            <div class="input-group">
+                                <input id="filterKeyword" type="text" class="form-control form-control-sm rounded-start-pill ps-3" placeholder="Tên sách, tác giả..." onkeyup="if(event.key==='Enter') applyFilters()">
+                                <button class="btn btn-primary btn-sm rounded-end-pill px-3" onclick="applyFilters()">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Danh mục -->
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Danh mục thể loại</label>
+                            <select id="filterCategory" class="form-select form-select-sm rounded-3" onchange="applyFilters()">
+                                <option value="">-- Tất cả danh mục --</option>
+                            </select>
+                        </div>
+
+                        <!-- Tác giả -->
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Tác giả</label>
+                            <select id="filterAuthor" class="form-select form-select-sm rounded-3" onchange="applyFilters()">
+                                <option value="">-- Tất cả tác giả --</option>
+                            </select>
+                        </div>
+
+                        <!-- Nhà xuất bản -->
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Nhà xuất bản</label>
+                            <select id="filterPublisher" class="form-select form-select-sm rounded-3" onchange="applyFilters()">
+                                <option value="">-- Tất cả NXB --</option>
+                            </select>
+                        </div>
+
+                        <!-- Khuyến mãi Switch -->
+                        <div class="p-3 bg-light rounded-3 mt-3">
+                            <div class="form-check form-switch m-0">
+                                <input class="form-check-input" type="checkbox" id="filterSaleOnly" onchange="applyFilters()">
+                                <label class="form-check-label small fw-bold text-danger ms-1" for="filterSaleOnly">
+                                    <i class="bi bi-fire me-1"></i>Chỉ sách giảm giá sốc
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assistance Card -->
+                <div class="card border-0 rounded-4 bg-primary text-white p-3 shadow-sm d-none d-lg-block">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-headset fs-1 text-warning"></i>
+                        <div>
+                            <h6 class="fw-bold mb-1">Cần Tìm Sách Hiếm?</h6>
+                            <p class="small text-white-50 mb-0">Liên hệ hotline 1900 8888 để được hỗ trợ tra cứu nhanh nhất.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Books Grid Area -->
+            <div class="col-lg-9">
+                <!-- Top Toolbar: Sort & Count -->
+                <div class="card shadow-sm border-0 rounded-4 mb-4">
+                    <div class="card-body p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div class="small text-muted" id="resultsCount">
+                            <div class="spinner-border spinner-border-sm text-primary me-2"></div>Đang tải dữ liệu...
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="small text-muted text-nowrap fw-semibold">Sắp xếp:</label>
+                            <select id="sortSelect" class="form-select form-select-sm rounded-3" style="width: auto;" onchange="applyFilters()">
+                                <option value="newest">Mới nhất phát hành</option>
+                                <option value="price_asc">Giá: Thấp đến Cao</option>
+                                <option value="price_desc">Giá: Cao đến Thấp</option>
+                                <option value="discount">Giảm giá nhiều nhất</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Books List -->
+                <div id="booksGrid" class="row g-4">
+                    <div class="col-12 text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="text-muted small mt-2">Đang tải danh sách sách...</p>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <nav class="mt-5 d-flex justify-content-center">
+                    <ul id="paginationContainer" class="pagination pagination-sm gap-1"></ul>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="pt-5 pb-4 mt-auto">
+        <div class="container text-center small text-secondary">
+            © 2026 <strong>Bookstore E-Commerce</strong>. All Rights Reserved. Hệ thống phân phối sách trực tuyến chính hãng.
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/common.js"></script>
+
+    <script>
+        let currentPage = 1;
+
+        function getQueryParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                q: urlParams.get('q') || '',
+                category_id: urlParams.get('category_id') || urlParams.get('category') || '',
+                author_id: urlParams.get('author_id') || '',
+                publisher_id: urlParams.get('publisher_id') || '',
+                is_sale: urlParams.get('is_sale') === 'true',
+                sort: urlParams.get('sort') || 'newest',
+                page: parseInt(urlParams.get('page')) || 1
+            };
+        }
+
+        async function loadFilterOptions() {
+            try {
+                // 1. Categories
+                const catRes = await api.get('/danhmuc');
+                if (catRes.success && catRes.data) {
+                    const select = document.getElementById('filterCategory');
+                    catRes.data.list.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.MaDanhMuc;
+                        opt.textContent = c.TenDanhMuc;
+                        select.appendChild(opt);
+                    });
+                }
+
+                // 2. Authors
+                const authRes = await api.get('/tacgia');
+                if (authRes.success && authRes.data) {
+                    const select = document.getElementById('filterAuthor');
+                    authRes.data.forEach(a => {
+                        const opt = document.createElement('option');
+                        opt.value = a.MaTG;
+                        opt.textContent = a.TenTG;
+                        select.appendChild(opt);
+                    });
+                }
+
+                // 3. Publishers
+                const pubRes = await api.get('/nhaxuatban');
+                if (pubRes.success && pubRes.data) {
+                    const select = document.getElementById('filterPublisher');
+                    pubRes.data.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.MaNXB;
+                        opt.textContent = p.TenNXB;
+                        select.appendChild(opt);
+                    });
+                }
+            } catch (e) {
+                console.error('Error loading filters:', e);
+            }
+        }
+
+        function renderBookCard(book) {
+            const hasSale = book.IsSale && book.GiaSale;
+            const currentPrice = hasSale ? book.GiaSale : book.GiaBan;
+            const originalPrice = hasSale ? `<span class="price-original">${formatMoney(book.GiaBan)}</span>` : '';
+            const discountPercent = book.PhanTramGiamGia || (hasSale ? Math.round((1 - book.GiaSale / book.GiaBan) * 100) : 0);
+            const saleBadge = (discountPercent > 0) ? `<div class="badge-discount-tag">-${discountPercent}%</div>` : '';
+            const freeshipBadge = (currentPrice >= 150000) ? `<div class="badge-freeship-tag"><i class="bi bi-truck me-1"></i>Freeship</div>` : '';
+            const authorName = (book.tac_gia && book.tac_gia.TenTG) ? book.tac_gia.TenTG : 'Tác giả chọn lọc';
+            const categoryName = (book.danh_muc && book.danh_muc.TenDanhMuc) ? book.danh_muc.TenDanhMuc : 'Sách Tuyển Chọn';
+            const imgUrl = book.AnhBia || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&q=80';
+
+            return `
+                <div class="col-6 col-md-4">
+                    <div class="book-card">
+                        <div class="book-img-wrapper">
+                            ${saleBadge}
+                            ${freeshipBadge}
+                            <a href="/book-detail.html?id=${book.MaSach}" class="d-flex align-items-center justify-content-center h-100 w-100">
+                                <img src="${imgUrl}" alt="${book.TenSach}" onerror="this.src='https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&q=80'">
+                            </a>
+                        </div>
+                        <div class="book-card-body">
+                            <div>
+                                <span class="book-category-label">${categoryName}</span>
+                                <h6 class="mb-1">
+                                    <a href="/book-detail.html?id=${book.MaSach}" class="book-title" title="${book.TenSach}">
+                                        ${book.TenSach}
+                                    </a>
+                                </h6>
+                                <div class="book-author">
+                                    <i class="bi bi-pen"></i> ${authorName}
+                                </div>
+                                <div class="book-rating-wrap">
+                                    <span class="book-rating-stars">★★★★★</span>
+                                    <span class="book-sold-count">4.9 (100+)</span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="book-price-row">
+                                    <span class="price-current">${formatMoney(currentPrice)}</span>
+                                    ${originalPrice}
+                                </div>
+                                <button class="btn-quick-add" onclick="quickAddToCart(${book.MaSach})">
+                                    <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function quickAddToCart(maSach) {
+            if (!api.getToken()) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Đăng nhập để mua sách',
+                    text: 'Bạn cần đăng nhập tài khoản để thêm sách vào giỏ hàng và đặt mua.',
+                    confirmButtonText: 'Đăng nhập ngay',
+                    showCancelButton: true,
+                    cancelButtonText: 'Để sau',
+                    confirmButtonColor: '#2563eb'
+                }).then((r) => {
+                    if (r.isConfirmed) window.location.href = '/login.html';
+                });
+                return;
+            }
+
+            try {
+                const res = await api.post('/cart/add', { MaSach: maSach, SoLuong: 1 });
+                if (res.success) {
+                    showToast('Đã thêm sách vào giỏ hàng!', 'success');
+                    updateCartCount();
+                }
+            } catch (err) {
+                showToast(err.message || 'Lỗi thêm giỏ hàng', 'error');
+            }
+        }
+
+        async function fetchBooks() {
+            const params = getQueryParams();
+            currentPage = params.page;
+
+            document.getElementById('filterKeyword').value = params.q;
+            document.getElementById('filterCategory').value = params.category_id;
+            document.getElementById('filterAuthor').value = params.author_id;
+            document.getElementById('filterPublisher').value = params.publisher_id;
+            document.getElementById('filterSaleOnly').checked = params.is_sale;
+            document.getElementById('sortSelect').value = params.sort;
+
+            const grid = document.getElementById('booksGrid');
+            grid.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>';
+
+            try {
+                const res = await api.get('/sach', {
+                    q: params.q,
+                    category_id: params.category_id,
+                    author_id: params.author_id,
+                    publisher_id: params.publisher_id,
+                    is_sale: params.is_sale ? true : null,
+                    sort: params.sort,
+                    page: params.page,
+                    per_page: 9
+                });
+
+                if (res.success) {
+                    const total = (res.pagination && res.pagination.total !== undefined) ? res.pagination.total : res.data.length;
+                    document.getElementById('resultsCount').innerHTML = `Hiển thị <strong>${res.data.length}</strong> / <strong>${total}</strong> cuốn sách`;
+
+                    if (res.data.length === 0) {
+                        grid.innerHTML = `
+                            <div class="col-12 text-center py-5">
+                                <i class="bi bi-journal-x display-3 text-muted"></i>
+                                <h5 class="fw-bold mt-3">Không tìm thấy cuốn sách nào</h5>
+                                <p class="text-muted small">Vui lòng thử lại với từ khóa hoặc bộ lọc khác.</p>
+                                <button class="btn btn-outline-primary btn-sm rounded-pill px-3 mt-2" onclick="resetFilters()">Xem tất cả sách</button>
+                            </div>
+                        `;
+                    } else {
+                        grid.innerHTML = res.data.map(renderBookCard).join('');
+                    }
+
+                    if (res.pagination) {
+                        renderPagination(res.pagination);
+                    }
+                }
+            } catch (err) {
+                console.error('Error fetching books:', err);
+                grid.innerHTML = '<div class="col-12 text-center text-danger py-4">Lỗi kết nối máy chủ khi tải danh sách sách.</div>';
+            }
+        }
+
+        function renderPagination(pg) {
+            const container = document.getElementById('paginationContainer');
+            container.innerHTML = '';
+            if (!pg || pg.last_page <= 1) return;
+
+            // Previous
+            container.innerHTML += `
+                <li class="page-item ${pg.current_page === 1 ? 'disabled' : ''}">
+                    <button class="page-link rounded-3" onclick="goToPage(${pg.current_page - 1})"><i class="bi bi-chevron-left"></i></button>
+                </li>
+            `;
+
+            for (let i = 1; i <= pg.last_page; i++) {
+                container.innerHTML += `
+                    <li class="page-item ${i === pg.current_page ? 'active' : ''}">
+                        <button class="page-link rounded-3 fw-bold" onclick="goToPage(${i})">${i}</button>
+                    </li>
+                `;
+            }
+
+            // Next
+            container.innerHTML += `
+                <li class="page-item ${pg.current_page === pg.last_page ? 'disabled' : ''}">
+                    <button class="page-link rounded-3" onclick="goToPage(${pg.current_page + 1})"><i class="bi bi-chevron-right"></i></button>
+                </li>
+            `;
+        }
+
+        function goToPage(page) {
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('page', page);
+            window.location.search = urlParams.toString();
+        }
+
+        function applyFilters() {
+            const q = document.getElementById('filterKeyword').value.trim();
+            const cat = document.getElementById('filterCategory').value;
+            const auth = document.getElementById('filterAuthor').value;
+            const pub = document.getElementById('filterPublisher').value;
+            const sale = document.getElementById('filterSaleOnly').checked;
+            const sort = document.getElementById('sortSelect').value;
+
+            const urlParams = new URLSearchParams();
+            if (q) urlParams.set('q', q);
+            if (cat) urlParams.set('category_id', cat);
+            if (auth) urlParams.set('author_id', auth);
+            if (pub) urlParams.set('publisher_id', pub);
+            if (sale) urlParams.set('is_sale', 'true');
+            if (sort) urlParams.set('sort', sort);
+            urlParams.set('page', '1');
+
+            window.location.search = urlParams.toString();
+        }
+
+        function resetFilters() {
+            window.location.href = '/books.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadFilterOptions();
+            await fetchBooks();
+        });
+    </script>
+</body>
+</html>

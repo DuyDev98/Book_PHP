@@ -51,6 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Đơn hàng của khách hàng
     Route::post('/orders/create', [OrderController::class, 'create']);
     Route::get('/orders/my-orders', [OrderController::class, 'myOrders']);
+    Route::get('/orders/best-sellers', [OrderController::class, 'bestSellers']);
+    Route::get('/orders/customer/{maKH}', [OrderController::class, 'customerOrders']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::put('/orders/{id}/cancel', [OrderController::class, 'cancel']);
 

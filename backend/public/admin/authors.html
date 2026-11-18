@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Tác Giả - Admin Bookstore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="/assets/css/admin.css">
+</head>
+<body class="admin-body">
+
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <i class="bi bi-book-half text-warning fs-4"></i>
+            <span>Bookstore Admin</span>
+        </div>
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item"><a class="nav-link" href="/admin/index.html"><i class="bi bi-speedometer2"></i> Dashboard Thống Kê</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/books.html"><i class="bi bi-journal-bookmark"></i> Quản Lý Sách</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/categories.html"><i class="bi bi-diagram-3"></i> Quản Lý Danh Mục</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/booktypes.html"><i class="bi bi-bookmark"></i> Quản Lý Loại Sách</a></li>
+            <li class="nav-item"><a class="nav-link active" href="/admin/authors.html"><i class="bi bi-person-lines-fill"></i> Quản Lý Tác Giả</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/publishers.html"><i class="bi bi-building"></i> Quản Lý NXB</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/orders.html"><i class="bi bi-receipt"></i> Quản Lý Đơn Hàng</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/comments.html"><i class="bi bi-chat-dots"></i> Kiểm Duyệt Bình Luận</a></li>
+            <li class="nav-item mt-4 border-top border-secondary pt-3"><a class="nav-link text-warning" href="/index.html"><i class="bi bi-shop"></i> Xem Trang Khách Hàng</a></li>
+        </ul>
+    </aside>
+
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <h5 class="m-0 fw-bold"><i class="bi bi-person-lines-fill me-2 text-primary"></i>Danh Sách Tác Giả</h5>
+            <button class="btn btn-primary fw-semibold" onclick="openAddAuthorModal()">
+                <i class="bi bi-plus-lg me-1"></i>Thêm Tác Giả
+            </button>
+        </header>
+
+        <main class="admin-content">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Mã TG</th>
+                                <th>Họ Tên Tác Giả</th>
+                                <th>Năm Sinh / Năm Mất</th>
+                                <th>Quê Quán / Quốc Tịch</th>
+                                <th>Số Sách Đang Có</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="authorTableBody">
+                            <tr><td colspan="6" class="text-center py-4 text-muted">Đang tải danh sách tác giả...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Tác Giả -->
+    <div class="modal fade" id="authorModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content rounded-4">
+                <form onsubmit="handleSaveAuthor(event)">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" id="authorModalTitle">Thêm Tác Giả</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <input type="hidden" id="authorId">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Tên tác giả <span class="text-danger">*</span></label>
+                            <input type="text" id="aName" class="form-control" required>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">Năm sinh</label>
+                                <input type="number" id="aBirth" class="form-control">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">Năm mất (nếu có)</label>
+                                <input type="number" id="aDeath" class="form-control">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Quê quán / Quốc gia</label>
+                            <input type="text" id="aOrigin" class="form-control">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Lưu tác giả</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/common.js"></script>
+
+    <script>
+        async function loadAuthors() {
+            try {
+                const res = await api.get('/tacgia');
+                const tbody = document.getElementById('authorTableBody');
+                if (!res.success || res.data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Chưa có tác giả nào.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = res.data.map(a => `
+                    <tr>
+                        <td class="fw-bold text-primary">#${a.MaTG}</td>
+                        <td class="fw-semibold text-dark">${a.TenTG}</td>
+                        <td>${a.NamSinh || '?'}${a.NamMat ? ' - ' + a.NamMat : ''}</td>
+                        <td>${a.QueQuan || '-'}</td>
+                        <td><span class="badge bg-primary-subtle text-primary">${a.sachs_count || 0} cuốn</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditAuthorModal(${a.MaTG}, '${a.TenTG.replace(/'/g, "\\'")}', '${a.NamSinh || ''}', '${a.NamMat || ''}', '${a.QueQuan || ''}')">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteAuthor(${a.MaTG}, ${a.sachs_count || 0})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        function openAddAuthorModal() {
+            document.getElementById('authorId').value = '';
+            document.getElementById('aName').value = '';
+            document.getElementById('aBirth').value = '';
+            document.getElementById('aDeath').value = '';
+            document.getElementById('aOrigin').value = '';
+            document.getElementById('authorModalTitle').textContent = 'Thêm Tác Giả Mới';
+            new bootstrap.Modal(document.getElementById('authorModal')).show();
+        }
+
+        function openEditAuthorModal(id, name, birth, death, origin) {
+            document.getElementById('authorId').value = id;
+            document.getElementById('aName').value = name;
+            document.getElementById('aBirth').value = birth;
+            document.getElementById('aDeath').value = death;
+            document.getElementById('aOrigin').value = origin;
+            document.getElementById('authorModalTitle').textContent = `Chỉnh Sửa Tác Giả #${id}`;
+            new bootstrap.Modal(document.getElementById('authorModal')).show();
+        }
+
+        async function handleSaveAuthor(e) {
+            e.preventDefault();
+            const id = document.getElementById('authorId').value;
+            const data = {
+                TenTG: document.getElementById('aName').value.trim(),
+                NamSinh: document.getElementById('aBirth').value || null,
+                NamMat: document.getElementById('aDeath').value || null,
+                QueQuan: document.getElementById('aOrigin').value.trim() || null,
+            };
+
+            try {
+                let res;
+                if (id) {
+                    res = await api.put(`/tacgia/${id}`, data);
+                } else {
+                    res = await api.post('/tacgia', data);
+                }
+
+                if (res.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('authorModal')).hide();
+                    showToast(res.message, 'success');
+                    loadAuthors();
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function deleteAuthor(id, count = 0) {
+            const warningText = count > 0 
+                ? `Tác giả này hiện đang có ${count} cuốn sách trong hệ thống. Nếu xóa, các cuốn sách này sẽ hiển thị là Chưa cập nhật tác giả.`
+                : 'Hành động này không thể hoàn tác.';
+
+            Swal.fire({
+                title: 'Xóa tác giả #' + id + '?',
+                text: warningText,
+                icon: count > 0 ? 'warning' : 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Xác nhận xóa',
+                cancelButtonText: 'Hủy'
+            }).then(async r => {
+                if (r.isConfirmed) {
+                    try {
+                        const res = await api.delete(`/tacgia/${id}`);
+                        if (res.success) {
+                            showToast(res.message, 'info');
+                            loadAuthors();
+                        }
+                    } catch (err) {
+                        showToast(err.message, 'error');
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadAuthors);
+    </script>
+</body>
+</html>

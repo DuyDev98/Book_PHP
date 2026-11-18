@@ -17,8 +17,8 @@ class DashboardController extends Controller
         // 1. Doanh thu thực tế (Chỉ tính đơn đã giao thành công)
         $tongDoanhThu = DonHang::whereIn('TrangThai', ['Đã giao', 'DaGiao'])->sum('TongTien');
 
-        // 2. Tổng số đơn hàng
-        $tongDonHang = DonHang::count();
+        // 2. Tổng số đơn hàng thực tế (Loại trừ đơn đã hủy)
+        $tongDonHang = DonHang::whereNotIn('TrangThai', ['Đã hủy', 'DaHuy'])->count();
 
         // 3. Tổng số khách hàng
         $tongKhachHang = KhachHang::count();

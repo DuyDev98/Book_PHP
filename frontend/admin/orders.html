@@ -201,7 +201,7 @@
         }
 
         function renderDetailModalContent(o) {
-            const canModifyItems = !['Đã giao', 'Đã hủy'].includes(o.TrangThai);
+            const canModifyItems = !['Đã giao', 'DaGiao', 'Đã hủy', 'DaHuy'].includes(o.TrangThai);
             const items = (o.chi_tiets || []).map(item => {
                 const b = item.sach || {};
                 return `
@@ -270,11 +270,11 @@
                     <label class="form-label fw-bold"><i class="bi bi-sliders me-1 text-primary"></i>Thay đổi trạng thái đơn hàng:</label>
                     <div class="d-flex gap-2">
                         <select id="modalStatusSelect" class="form-select">
-                            <option value="ChoDuyet" ${o.TrangThai === 'ChoDuyet' ? 'selected' : ''}>ChoDuyet (Chờ duyệt đơn)</option>
-                            <option value="Đang xử lý" ${o.TrangThai === 'Đang xử lý' ? 'selected' : ''}>Đang xử lý (Đóng gói)</option>
-                            <option value="Đang giao" ${o.TrangThai === 'Đang giao' ? 'selected' : ''}>Đang giao hàng</option>
-                            <option value="Đã giao" ${o.TrangThai === 'Đã giao' ? 'selected' : ''}>Đã giao (Chốt tính doanh thu)</option>
-                            <option value="Đã hủy" ${o.TrangThai === 'Đã hủy' ? 'selected' : ''}>Đã hủy (Tự động hoàn kho)</option>
+                            <option value="ChoDuyet" ${['ChoDuyet', 'Chờ duyệt', 'Chờ xác nhận'].includes(o.TrangThai) ? 'selected' : ''}>ChoDuyet (Chờ duyệt đơn)</option>
+                            <option value="Đang xử lý" ${['Đang xử lý', 'DangXuLy'].includes(o.TrangThai) ? 'selected' : ''}>Đang xử lý (Đóng gói)</option>
+                            <option value="Đang giao" ${['Đang giao', 'DangGiao'].includes(o.TrangThai) ? 'selected' : ''}>Đang giao hàng</option>
+                            <option value="Đã giao" ${['Đã giao', 'DaGiao'].includes(o.TrangThai) ? 'selected' : ''}>Đã giao (Chốt tính doanh thu)</option>
+                            <option value="Đã hủy" ${['Đã hủy', 'DaHuy'].includes(o.TrangThai) ? 'selected' : ''}>Đã hủy (Tự động hoàn kho)</option>
                         </select>
                         <button class="btn btn-primary text-nowrap fw-semibold" onclick="updateOrderStatus(${o.MaDH})">
                             <i class="bi bi-check2 me-1"></i>Lưu trạng thái

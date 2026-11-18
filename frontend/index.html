@@ -3,35 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nhà Sách Trực Tuyến - Bookstore E-Commerce</title>
+    <title>Bookstore - Nhà Sách Trực Tuyến & Tri Thức Chọn Lọc</title>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <!-- Custom CSS -->
+    <!-- Custom Design System CSS -->
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body>
 
-    <!-- Header Navbar -->
+    <!-- 1. Top Announcement Bar -->
+    <div class="top-announcement-bar">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-danger text-uppercase px-2 py-1" style="font-size: 0.68rem; letter-spacing: 0.05em;">Ưu đãi</span>
+                <span>🎉 Siêu Hội Sách 2026: Miễn phí vận chuyển toàn quốc cho đơn hàng từ <strong>250.000đ</strong>!</span>
+            </div>
+            <div class="d-none d-md-flex align-items-center gap-4 text-secondary">
+                <span><i class="bi bi-telephone-inbound me-1 text-warning"></i>Hotline: <strong>1900 8888</strong></span>
+                <span><i class="bi bi-truck me-1 text-info"></i>Giao nhanh 24h</span>
+                <a href="/books.html?is_sale=true" class="fw-bold">Xem Flash Sale <i class="bi bi-chevron-right small"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Header Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
         <div class="container">
-            <a class="navbar-brand brand-logo" href="/index.html">
-                <i class="bi bi-book-half me-2"></i>Bookstore
+            <!-- Brand Logo -->
+            <a class="brand-logo" href="/index.html">
+                <div class="brand-icon-wrapper">
+                    <i class="bi bi-book-half"></i>
+                </div>
+                <div>
+                    <span>Bookstore</span>
+                    <span class="brand-subtext">Tri Thức Cho Mọi Nhà</span>
+                </div>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
-                <span class="navbar-toggler-icon"></span>
+
+            <!-- Mobile Toggler -->
+            <button class="navbar-toggler border-0 shadow-none text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <i class="bi bi-list fs-2"></i>
             </button>
 
+            <!-- Collapsible Main -->
             <div class="collapse navbar-collapse" id="navbarMain">
                 <!-- Search Bar -->
-                <form class="d-flex mx-auto my-2 my-lg-0 col-12 col-lg-5" onsubmit="handleSearch(event)">
-                    <div class="input-group">
-                        <input id="searchInput" class="form-control" type="search" placeholder="Tìm tên sách, tác giả...">
-                        <button class="btn btn-warning text-dark" type="submit">
-                            <i class="bi bi-search"></i>
+                <form class="d-flex mx-lg-4 my-3 my-lg-0 header-search-bar flex-grow-1" onsubmit="handleSearch(event)">
+                    <div class="input-group w-100">
+                        <input id="searchInput" class="form-control header-search-input" type="search" placeholder="Tìm kiếm tựa sách, tác giả, thể loại...">
+                        <button class="btn header-search-btn" type="submit">
+                            <i class="bi bi-search me-1"></i>Tìm
                         </button>
                     </div>
                 </form>
@@ -39,25 +68,23 @@
                 <!-- Navigation Links -->
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" href="/index.html"><i class="bi bi-house-door me-1"></i>Trang chủ</a>
+                        <a class="nav-link active" href="/index.html"><i class="bi bi-house-door"></i>Trang chủ</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/books.html"><i class="bi bi-grid me-1"></i>Tất cả sách</a>
+                        <a class="nav-link" href="/books.html"><i class="bi bi-grid"></i>Tất cả sách</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-warning fw-semibold" href="/books.html?is_sale=true">
-                            <i class="bi bi-fire me-1"></i>Khuyến mãi
+                        <a class="nav-link sale-nav-link" href="/books.html?is_sale=true">
+                            <i class="bi bi-fire text-danger"></i>Khuyến mãi
                         </a>
                     </li>
                 </ul>
 
                 <!-- Right Actions: Cart & Auth -->
                 <div class="d-flex align-items-center gap-3">
-                    <a href="/cart.html" class="btn btn-outline-light position-relative">
-                        <i class="bi bi-cart3 fs-5"></i>
-                        <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            0
-                        </span>
+                    <a href="/cart.html" class="header-action-btn" title="Giỏ hàng của bạn">
+                        <i class="bi bi-bag fs-5"></i>
+                        <span id="cartBadge" class="header-cart-badge">0</span>
                     </a>
                     <div id="navbarAuth" class="d-flex align-items-center"></div>
                 </div>
@@ -67,98 +94,419 @@
 
     <!-- Main Content -->
     <main>
-        <!-- Hero Banner -->
-        <section class="hero-banner text-center">
+        <!-- 3. Hero Section (Split Banner) -->
+        <section class="hero-wrapper">
             <div class="container">
-                <h1 class="display-4 fw-bold mb-3">Khám Phá Thế Giới Tri Thức</h1>
-                <p class="lead mb-4 col-lg-8 mx-auto">
-                    Hàng ngàn đầu sách văn học, kinh tế, công nghệ thông tin và kỹ năng sống chọn lọc với ưu đãi hấp dẫn mỗi ngày.
-                </p>
-                <div class="d-flex justify-content-center gap-3">
-                    <a href="/books.html" class="btn btn-warning btn-lg fw-bold text-dark px-4 shadow">
-                        <i class="bi bi-book me-2"></i>Mua sắm ngay
-                    </a>
-                    <a href="/books.html?is_sale=true" class="btn btn-outline-light btn-lg fw-semibold px-4">
-                        <i class="bi bi-tags me-2"></i>Sách giảm giá
-                    </a>
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-7">
+                        <div class="hero-pill-tag">
+                            <i class="bi bi-patch-check-fill text-warning"></i>
+                            <span>HỆ THỐNG PHÂN PHỐI SÁCH CHÍNH HÃNG #1</span>
+                        </div>
+                        <h1 class="hero-title">
+                            Khám Phá Thế Giới <br>
+                            <span class="hero-title-gradient">Tri Thức & Sách Hay Chọn Lọc</span>
+                        </h1>
+                        <p class="hero-subtitle">
+                            Hơn 10.000+ tác phẩm tinh tuyển về Văn học, Kinh tế - Khởi nghiệp, Công nghệ và Kỹ năng sống giúp bạn nâng tầm tư duy mỗi ngày.
+                        </p>
+                        <div class="d-flex flex-wrap gap-3 align-items-center">
+                            <a href="/books.html" class="btn btn-warning btn-lg fw-bold text-dark px-4 py-3 rounded-pill shadow-sm" style="transition: all 0.25s;">
+                                <i class="bi bi-book-half me-2"></i>Khám phá tủ sách ngay
+                            </a>
+                            <a href="/books.html?is_sale=true" class="btn btn-outline-light btn-lg fw-semibold px-4 py-3 rounded-pill">
+                                <i class="bi bi-fire text-danger me-2"></i>Sách giảm giá sốc
+                            </a>
+                        </div>
+
+                        <!-- Stats Row -->
+                        <div class="hero-stats-row">
+                            <div class="hero-stat-item">
+                                <h4>50.000+</h4>
+                                <p>Độc giả tin yêu</p>
+                            </div>
+                            <div class="hero-stat-item">
+                                <h4>10.000+</h4>
+                                <p>Đầu sách chính hãng</p>
+                            </div>
+                            <div class="hero-stat-item">
+                                <h4>100%</h4>
+                                <p>Cam kết sách chuẩn NXB</p>
+                            </div>
+                            <div class="hero-stat-item">
+                                <h4>4.9 ★</h4>
+                                <p>Đánh giá hài lòng</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hero Right Featured Spotlight -->
+                    <div class="col-lg-5 d-none d-lg-block">
+                        <div class="hero-card-featured">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="badge bg-danger rounded-pill px-3 py-2 fw-bold" style="font-size: 0.75rem;">
+                                    <i class="bi bi-lightning-charge-fill me-1"></i>Sách Bán Chạy Nhất Tháng
+                                </span>
+                                <span class="text-warning small fw-bold">★★★★★ 4.9/5</span>
+                            </div>
+                            <div class="text-center py-3">
+                                <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&q=80" 
+                                     alt="Featured Book" 
+                                     class="img-fluid rounded-3 shadow-lg" 
+                                     style="max-height: 240px; transform: rotate(-2deg); transition: transform 0.3s ease;">
+                            </div>
+                            <div class="mt-3">
+                                <h5 class="fw-bold text-white mb-1">Đắc Nhân Tâm (Khổ Lớn Đặc Biệt)</h5>
+                                <p class="text-secondary small mb-2"><i class="bi bi-person me-1"></i>Dale Carnegie • NXB Tổng Hợp</p>
+                                <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary">
+                                    <div>
+                                        <span class="text-danger fs-5 fw-bold">86.000 đ</span>
+                                        <span class="text-secondary text-decoration-line-through small ms-2">115.000 đ</span>
+                                    </div>
+                                    <a href="/books.html" class="btn btn-sm btn-outline-warning rounded-pill px-3 fw-bold">
+                                        Xem ngay <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <div class="container my-5">
-            <!-- Flash Sale Section -->
-            <div class="mb-5">
-                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-                    <h3 class="fw-bold text-danger m-0 d-flex align-items-center gap-2">
-                        <i class="bi bi-fire"></i> Sách Giảm Giá Nổi Bật (Flash Sale)
-                    </h3>
-                    <a href="/books.html?is_sale=true" class="text-decoration-none fw-semibold">
-                        Xem tất cả <i class="bi bi-arrow-right"></i>
-                    </a>
+        <!-- 4. Value Proposition Bar (Trust Badges) -->
+        <section class="container trust-bar-section">
+            <div class="row g-3">
+                <div class="col-6 col-lg-3">
+                    <div class="trust-bar-card">
+                        <div class="trust-icon-box icon-blue">
+                            <i class="bi bi-truck"></i>
+                        </div>
+                        <div class="trust-content">
+                            <h6>Giao Hàng Siêu Tốc</h6>
+                            <p>Toàn quốc chỉ từ 1 - 2 ngày</p>
+                        </div>
+                    </div>
                 </div>
+                <div class="col-6 col-lg-3">
+                    <div class="trust-bar-card">
+                        <div class="trust-icon-box icon-amber">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <div class="trust-content">
+                            <h6>100% Sách Thật</h6>
+                            <p>Bồi thường 200% nếu sách giả</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="trust-bar-card">
+                        <div class="trust-icon-box icon-green">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </div>
+                        <div class="trust-content">
+                            <h6>Đổi Trả Trong 7 Ngày</h6>
+                            <p>Thủ tục dễ dàng & miễn phí</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="trust-bar-card">
+                        <div class="trust-icon-box icon-purple">
+                            <i class="bi bi-credit-card"></i>
+                        </div>
+                        <div class="trust-content">
+                            <h6>Thanh Toán An Toàn</h6>
+                            <p>COD, MoMo, VNPAY, Thẻ</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Main Content Container -->
+        <div class="container my-4">
+
+            <!-- Flash Sale Section -->
+            <section class="mb-5">
+                <div class="flash-sale-banner">
+                    <div class="flash-sale-title">
+                        <i class="bi bi-fire fs-3 text-warning"></i>
+                        <span>FLASH SALE GIỜ VÀNG - GIÁ SỐC HÔM NAY</span>
+                    </div>
+                    <div class="flash-countdown-wrap">
+                        <span class="flash-timer-label d-none d-sm-inline">Kết thúc sau:</span>
+                        <div class="countdown-box" id="timerHours">02</div>
+                        <span class="fw-bold">:</span>
+                        <div class="countdown-box" id="timerMinutes">45</div>
+                        <span class="fw-bold">:</span>
+                        <div class="countdown-box" id="timerSeconds">30</div>
+                        <a href="/books.html?is_sale=true" class="btn btn-sm btn-light fw-bold ms-3 px-3 py-2 rounded-pill text-danger">
+                            Xem tất cả <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
                 <div id="flashSaleContainer" class="row g-4">
-                    <div class="col-12 text-center py-4">
+                    <div class="col-12 text-center py-5">
                         <div class="spinner-border text-danger" role="status"></div>
+                        <p class="text-muted mt-2 small">Đang cập nhật danh mục Flash Sale...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Browse by Category Section -->
+            <section class="mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <div>
+                        <h4 class="fw-bold m-0 text-dark"><i class="bi bi-compass text-primary me-2"></i>Danh Mục Sách Nổi Bật</h4>
+                        <small class="text-muted">Chọn thể loại sách phù hợp với sở thích của bạn</small>
+                    </div>
+                    <a href="/books.html" class="text-decoration-none fw-bold small text-primary">Xem tất cả danh mục →</a>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="/books.html?category=1" class="category-card">
+                            <div class="category-icon-bubble" style="background: #e0f2fe; color: #0284c7;">
+                                <i class="bi bi-book"></i>
+                            </div>
+                            <span class="category-name">Văn Học</span>
+                            <span class="category-count">Tiểu thuyết, Thơ</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="/books.html?category=2" class="category-card">
+                            <div class="category-icon-bubble" style="background: #fef3c7; color: #d97706;">
+                                <i class="bi bi-graph-up-arrow"></i>
+                            </div>
+                            <span class="category-name">Kinh Tế</span>
+                            <span class="category-count">Quản trị, Đầu tư</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="/books.html?category=3" class="category-card">
+                            <div class="category-icon-bubble" style="background: #dcfce7; color: #16a34a;">
+                                <i class="bi bi-laptop"></i>
+                            </div>
+                            <span class="category-name">Công Nghệ</span>
+                            <span class="category-count">Lập trình, AI, Web</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="/books.html?category=4" class="category-card">
+                            <div class="category-icon-bubble" style="background: #f3e8ff; color: #9333ea;">
+                                <i class="bi bi-lightbulb"></i>
+                            </div>
+                            <span class="category-name">Kỹ Năng Sống</span>
+                            <span class="category-count">Tâm lý, Phát triển</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="/books.html?category=7" class="category-card">
+                            <div class="category-icon-bubble" style="background: #ffedd5; color: #ea580c;">
+                                <i class="bi bi-rocket-takeoff"></i>
+                            </div>
+                            <span class="category-name">Khởi Nghiệp</span>
+                            <span class="category-count">Kinh doanh, Startup</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="/books.html" class="category-card">
+                            <div class="category-icon-bubble" style="background: #ede9fe; color: #6d28d9;">
+                                <i class="bi bi-grid-fill"></i>
+                            </div>
+                            <span class="category-name">Xem Thêm</span>
+                            <span class="category-count">Đầy đủ thể loại</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Mid-page Promo Banner (Voucher) -->
+            <div class="promo-strip-banner">
+                <div class="row align-items-center g-4">
+                    <div class="col-lg-8">
+                        <span class="badge bg-warning text-dark fw-bold px-3 py-1 mb-2 rounded-pill" style="font-size: 0.78rem;">
+                            ƯU ĐÃI ĐỘC QUYỀN
+                        </span>
+                        <h3 class="fw-bold mb-2">Tuần Lễ Tri Thức - Giảm Thêm 30.000đ</h3>
+                        <p class="mb-0 text-white-50">Áp dụng cho mọi đơn hàng từ 299.000đ khi mua sắm trực tuyến hôm nay.</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end">
+                        <div class="d-inline-flex flex-column align-items-lg-end gap-2">
+                            <span class="text-white small">Mã giảm giá của bạn:</span>
+                            <div class="coupon-code-pill" onclick="copyCoupon('BOOK2026')">
+                                <span>BOOK2026</span>
+                                <i class="bi bi-clipboard"></i>
+                            </div>
+                            <small class="text-white-50">Nhấn để sao chép mã</small>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- New Books Section -->
-            <div class="mb-5">
-                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-                    <h3 class="fw-bold text-primary m-0 d-flex align-items-center gap-2">
-                        <i class="bi bi-stars"></i> Sách Mới Tuyển Chọn
-                    </h3>
-                    <a href="/books.html" class="text-decoration-none fw-semibold">
-                        Xem tất cả <i class="bi bi-arrow-right"></i>
-                    </a>
+            <section class="mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                    <div>
+                        <h4 class="fw-bold m-0 text-dark"><i class="bi bi-stars text-warning me-2"></i>Sách Mới Tuyển Chọn</h4>
+                        <small class="text-muted">Các tác phẩm mới xuất bản được đánh giá cao nhất</small>
+                    </div>
+                    <a href="/books.html" class="text-decoration-none fw-bold small text-primary">Xem toàn bộ kho sách →</a>
                 </div>
+
                 <div id="newBooksContainer" class="row g-4">
-                    <div class="col-12 text-center py-4">
+                    <div class="col-12 text-center py-5">
                         <div class="spinner-border text-primary" role="status"></div>
+                        <p class="text-muted mt-2 small">Đang tải danh sách sách mới...</p>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- Customer Testimonials Section -->
+            <section class="mb-5">
+                <div class="text-center mb-4">
+                    <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1 rounded-pill mb-2">ĐÁNH GIÁ TỪ BẠN ĐỌC</span>
+                    <h4 class="fw-bold m-0">Hơn 50.000 Độc Giả Tin Tưởng Lựa Chọn</h4>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="testimonial-card">
+                            <div class="text-warning mb-2">★★★★★</div>
+                            <p class="small text-muted mb-3" style="line-height: 1.6;">
+                                "Sách được đóng bọc màng co rất cẩn thận, bìa cứng cáp nguyên vẹn không bị móp góc. Giao từ Hà Nội vào SG chỉ 2 ngày là nhận được. Rất hài lòng!"
+                            </p>
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&q=80" alt="Avatar" class="testimonial-user-avatar">
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;">Nguyễn Thùy Linh</h6>
+                                    <small class="text-success fw-semibold"><i class="bi bi-patch-check-fill me-1"></i>Đã mua hàng</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="testimonial-card">
+                            <div class="text-warning mb-2">★★★★★</div>
+                            <p class="small text-muted mb-3" style="line-height: 1.6;">
+                                "Tìm cuốn sách về PHP & Laravel này khắp nơi chỉ thấy ở Bookstore là có hàng chuẩn bản in mới nhất. Đọc rất thực chiến, giá lại có mã giảm 30K cực hời."
+                            </p>
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80" alt="Avatar" class="testimonial-user-avatar">
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;">Trần Hoàng Nam</h6>
+                                    <small class="text-success fw-semibold"><i class="bi bi-patch-check-fill me-1"></i>Đã mua hàng</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="testimonial-card">
+                            <div class="text-warning mb-2">★★★★★</div>
+                            <p class="small text-muted mb-3" style="line-height: 1.6;">
+                                "Dịch vụ hỗ trợ chăm sóc khách hàng nhiệt tình, giao diện đặt sách trên điện thoại mượt mà và trực quan. Chắc chắn sẽ tiếp tục ủng hộ Bookstore."
+                            </p>
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=120&q=80" alt="Avatar" class="testimonial-user-avatar">
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;">Phạm Mai Anh</h6>
+                                    <small class="text-success fw-semibold"><i class="bi bi-patch-check-fill me-1"></i>Đã mua hàng</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Newsletter Box -->
+            <section class="p-4 p-lg-5 rounded-4 border bg-white shadow-sm mb-5">
+                <div class="row align-items-center g-4">
+                    <div class="col-lg-6">
+                        <h4 class="fw-bold mb-2">Đăng Ký Nhận Bản Tin Sách Hay</h4>
+                        <p class="text-muted small mb-0">Nhận ngay voucher giảm giá <strong>20.000đ</strong> và thông báo sớm nhất về các đợt phát hành sách mới hàng tuần.</p>
+                    </div>
+                    <div class="col-lg-6">
+                        <form onsubmit="handleNewsletter(event)" class="d-flex gap-2">
+                            <input type="email" required class="form-control rounded-pill px-3 py-2" placeholder="Nhập địa chỉ email của bạn...">
+                            <button class="btn btn-primary rounded-pill px-4 fw-bold text-nowrap" type="submit">Đăng Ký</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="py-5 mt-auto">
+    <!-- 6. Modern Multi-Column Footer -->
+    <footer class="pt-5 pb-4">
         <div class="container">
             <div class="row g-4">
-                <div class="col-lg-4">
-                    <h5 class="text-white fw-bold mb-3"><i class="bi bi-book-half text-warning me-2"></i>Bookstore Online</h5>
-                    <p class="small text-secondary">
-                        Đồ án Chuyên đề Tổng hợp - Hệ thống Quản lý và Bán sách trực tuyến (Trường ĐH Xây Dựng Hà Nội - Nhóm 9).
+                <!-- Col 1: Brand Info -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-brand-title">
+                        <i class="bi bi-book-half text-warning"></i>
+                        <span>Bookstore Tri Thức</span>
+                    </div>
+                    <p class="small text-secondary mb-3" style="line-height: 1.6;">
+                        Hệ thống thương mại điện tử chuyên cung cấp sách chính hãng hàng đầu, kết nối bạn đọc với tri thức tinh hoa từ các nhà xuất bản uy tín trong và ngoài nước.
                     </p>
-                    <p class="small text-secondary m-0">
-                        <i class="bi bi-geo-alt me-1"></i> Hà Nội, Việt Nam<br>
-                        <i class="bi bi-envelope me-1"></i> contact@bookstore.vn
-                    </p>
+                    <div class="small text-secondary mb-2"><i class="bi bi-geo-alt me-2 text-primary"></i>55 Giải Phóng, Hai Bà Trưng, Hà Nội</div>
+                    <div class="small text-secondary mb-2"><i class="bi bi-envelope me-2 text-primary"></i>contact@bookstore.vn</div>
+                    <div class="small text-secondary"><i class="bi bi-telephone me-2 text-primary"></i>1900 8888 (8:00 - 21:00)</div>
                 </div>
-                <div class="col-lg-2 col-6">
-                    <h6 class="text-white fw-semibold mb-3">Danh Mục</h6>
-                    <ul class="list-unstyled small">
-                        <li class="mb-2"><a href="/books.html">Tất cả sách</a></li>
-                        <li class="mb-2"><a href="/books.html?is_sale=true">Khuyến mãi</a></li>
+
+                <!-- Col 2: Categories -->
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h6 class="footer-heading">Khám Phá Sách</h6>
+                    <ul class="footer-links-list">
+                        <li><a href="/books.html"><i class="bi bi-chevron-right small text-muted"></i>Tất cả đầu sách</a></li>
+                        <li><a href="/books.html?category=1"><i class="bi bi-chevron-right small text-muted"></i>Văn học kinh điển</a></li>
+                        <li><a href="/books.html?category=2"><i class="bi bi-chevron-right small text-muted"></i>Kinh tế khởi nghiệp</a></li>
+                        <li><a href="/books.html?category=3"><i class="bi bi-chevron-right small text-muted"></i>Công nghệ thông tin</a></li>
+                        <li><a href="/books.html?category=4"><i class="bi bi-chevron-right small text-muted"></i>Kỹ năng & Tâm lý</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-2 col-6">
-                    <h6 class="text-white fw-semibold mb-3">Tài Khoản</h6>
-                    <ul class="list-unstyled small">
-                        <li class="mb-2"><a href="/login.html">Đăng nhập</a></li>
-                        <li class="mb-2"><a href="/cart.html">Giỏ hàng</a></li>
-                        <li class="mb-2"><a href="/orders.html">Lịch sử đơn</a></li>
+
+                <!-- Col 3: Customer Service -->
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h6 class="footer-heading">Chăm Sóc Khách Hàng</h6>
+                    <ul class="footer-links-list">
+                        <li><a href="/cart.html"><i class="bi bi-chevron-right small text-muted"></i>Giỏ hàng của bạn</a></li>
+                        <li><a href="/orders.html"><i class="bi bi-chevron-right small text-muted"></i>Tra cứu đơn hàng</a></li>
+                        <li><a href="/profile.html"><i class="bi bi-chevron-right small text-muted"></i>Hồ sơ tài khoản</a></li>
+                        <li><a href="/login.html"><i class="bi bi-chevron-right small text-muted"></i>Đăng nhập / Đăng ký</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right small text-muted"></i>Chính sách đổi trả 7 ngày</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-4">
-                    <h6 class="text-white fw-semibold mb-3">Thanh Toán & Vận Chuyển</h6>
-                    <p class="small text-secondary">Hỗ trợ nhận hàng thanh toán tại nhà (COD) trên toàn quốc.</p>
+
+                <!-- Col 4: Payments & Security -->
+                <div class="col-lg-4 col-md-6">
+                    <h6 class="footer-heading">Phương Thức Thanh Toán</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="payment-badge-pill"><i class="bi bi-cash-coin text-success"></i>COD Tiền Mặt</span>
+                        <span class="payment-badge-pill"><i class="bi bi-credit-card-2-front text-primary"></i>Visa / Master</span>
+                        <span class="payment-badge-pill"><i class="bi bi-wallet2 text-danger"></i>MoMo</span>
+                        <span class="payment-badge-pill"><i class="bi bi-qr-code text-info"></i>VNPAY QR</span>
+                    </div>
+
+                    <h6 class="footer-heading mt-3">Đối Tác Vận Chuyển</h6>
+                    <p class="small text-secondary mb-0">
+                        Giao Hàng Tiết Kiệm (GHTK), Giao Hàng Nhanh (GHN), Viettel Post, VNPost đảm bảo đơn hàng đến tay bạn nguyên vẹn và nhanh nhất.
+                    </p>
                 </div>
             </div>
-            <hr class="border-secondary my-4">
-            <div class="text-center small text-secondary">
-                © 2026 Bookstore Online. Phát triển trên nền tảng PHP Laravel RESTful API & HTML5/Bootstrap 5.
+
+            <hr class="my-4" style="border-color: rgba(255, 255, 255, 0.08);">
+            
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 small text-secondary">
+                <div>
+                    © 2026 <strong>Bookstore E-Commerce</strong>. All Rights Reserved. Hệ thống xây dựng với chuẩn RESTful API & HTML5/Bootstrap 5.
+                </div>
+                <div class="d-flex gap-3">
+                    <span class="text-success"><i class="bi bi-shield-lock-fill me-1"></i>Bảo mật SSL 256-bit</span>
+                    <span><i class="bi bi-patch-check-fill text-primary me-1"></i>Sách chính hãng 100%</span>
+                </div>
             </div>
         </div>
     </footer>
@@ -167,11 +515,46 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Scripts -->
+    <!-- Core API & Utilities Scripts -->
     <script src="/assets/js/api.js"></script>
     <script src="/assets/js/common.js"></script>
 
     <script>
+        // Countdown timer for Flash Sale
+        function startCountdown() {
+            let totalSeconds = 2 * 3600 + 45 * 60 + 30; // 2h 45m 30s
+            setInterval(() => {
+                if (totalSeconds > 0) {
+                    totalSeconds--;
+                    const hours = Math.floor(totalSeconds / 3600);
+                    const minutes = Math.floor((totalSeconds % 3600) / 60);
+                    const seconds = totalSeconds % 60;
+                    document.getElementById('timerHours').textContent = String(hours).padStart(2, '0');
+                    document.getElementById('timerMinutes').textContent = String(minutes).padStart(2, '0');
+                    document.getElementById('timerSeconds').textContent = String(seconds).padStart(2, '0');
+                }
+            }, 1000);
+        }
+
+        function copyCoupon(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                showToast(`Đã sao chép mã ưu đãi: ${code}`, 'success');
+            }).catch(() => {
+                showToast(`Mã ưu đãi của bạn: ${code}`, 'info');
+            });
+        }
+
+        function handleNewsletter(e) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'success',
+                title: 'Đăng Ký Thành Công!',
+                text: 'Cảm ơn bạn đã đăng ký. Mã ưu đãi BOOK2026 đã được gửi tới hòm thư của bạn!',
+                confirmButtonColor: '#2563eb'
+            });
+            e.target.reset();
+        }
+
         function handleSearch(e) {
             e.preventDefault();
             const q = document.getElementById('searchInput').value.trim();
@@ -180,39 +563,72 @@
             }
         }
 
-        function renderBookCard(book) {
+        // Render card sách chuẩn UX/UI E-commerce
+        function renderBookCard(book, isFlashSale = false) {
             const hasSale = book.IsSale && book.GiaSale;
             const currentPrice = hasSale ? book.GiaSale : book.GiaBan;
             const originalPrice = hasSale ? `<span class="price-original">${formatMoney(book.GiaBan)}</span>` : '';
-            const saleBadge = (book.PhanTramGiamGia > 0) ? `<div class="sale-badge">-${book.PhanTramGiamGia}%</div>` : '';
-            const authorName = book.tac_gia ? book.tac_gia.TenTG : 'Đang cập nhật';
+            const discountPercent = book.PhanTramGiamGia || (hasSale ? Math.round((1 - book.GiaSale / book.GiaBan) * 100) : 0);
+            const saleBadge = (discountPercent > 0) ? `<div class="badge-discount-tag">-${discountPercent}%</div>` : '';
+            const freeshipBadge = (currentPrice >= 150000) ? `<div class="badge-freeship-tag"><i class="bi bi-truck me-1"></i>Freeship</div>` : '';
+            const authorName = (book.tac_gia && book.tac_gia.TenTG) ? book.tac_gia.TenTG : 'Tác giả tuyển chọn';
+            const categoryName = (book.danh_muc && book.danh_muc.TenDanhMuc) ? book.danh_muc.TenDanhMuc : 'Sách Chọn Lọc';
             const imgUrl = book.AnhBia || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&q=80';
+
+            // Flash Sale Stock Bar (Randomized realistic progress)
+            let flashStockHtml = '';
+            if (isFlashSale) {
+                const soldQty = Math.floor(Math.random() * 20) + 12;
+                const totalQty = soldQty + (book.SoLuongTon || 5);
+                const percent = Math.min(100, Math.round((soldQty / totalQty) * 100));
+                flashStockHtml = `
+                    <div class="flash-stock-progress">
+                        <div class="flash-progress-bar-bg">
+                            <div class="flash-progress-bar-fill" style="width: ${percent}%;"></div>
+                        </div>
+                        <div class="flash-stock-text">
+                            <span><i class="bi bi-fire text-danger"></i> Đã bán ${soldQty}</span>
+                            <span>Còn ${book.SoLuongTon || 5}</span>
+                        </div>
+                    </div>
+                `;
+            }
 
             return `
                 <div class="col-6 col-md-4 col-lg-3">
-                    <div class="card book-card shadow-sm h-100">
+                    <div class="book-card">
                         <div class="book-img-wrapper">
                             ${saleBadge}
-                            <a href="/book-detail.html?id=${book.MaSach}">
+                            ${freeshipBadge}
+                            <a href="/book-detail.html?id=${book.MaSach}" class="d-flex align-items-center justify-content-center h-100 w-100">
                                 <img src="${imgUrl}" alt="${book.TenSach}" onerror="this.src='https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&q=80'">
                             </a>
                         </div>
-                        <div class="card-body p-3 d-flex flex-direction-column justify-content-between flex-grow-1">
+                        <div class="book-card-body">
                             <div>
-                                <small class="text-muted d-block text-truncate mb-1"><i class="bi bi-pen me-1"></i>${authorName}</small>
-                                <h6 class="card-title text-truncate-2 mb-2" style="font-size: 0.95rem; height: 2.6rem; overflow: hidden;">
-                                    <a href="/book-detail.html?id=${book.MaSach}" class="text-dark text-decoration-none fw-semibold">
+                                <span class="book-category-label">${categoryName}</span>
+                                <h6 class="mb-1">
+                                    <a href="/book-detail.html?id=${book.MaSach}" class="book-title" title="${book.TenSach}">
                                         ${book.TenSach}
                                     </a>
                                 </h6>
+                                <div class="book-author">
+                                    <i class="bi bi-pen"></i> ${authorName}
+                                </div>
+                                <div class="book-rating-wrap">
+                                    <span class="book-rating-stars">★★★★★</span>
+                                    <span class="book-sold-count">4.9 (120+ đã mua)</span>
+                                </div>
                             </div>
-                            <div class="mt-2">
-                                <div class="mb-2">
+                            
+                            <div>
+                                ${flashStockHtml}
+                                <div class="book-price-row">
                                     <span class="price-current">${formatMoney(currentPrice)}</span>
                                     ${originalPrice}
                                 </div>
-                                <button class="btn btn-outline-primary btn-sm w-100 fw-semibold" onclick="quickAddToCart(${book.MaSach})">
-                                    <i class="bi bi-cart-plus me-1"></i>Thêm giỏ hàng
+                                <button class="btn-quick-add" onclick="quickAddToCart(${book.MaSach})">
+                                    <i class="bi bi-cart-plus"></i> Thêm vào giỏ
                                 </button>
                             </div>
                         </div>
@@ -225,11 +641,12 @@
             if (!api.getToken()) {
                 Swal.fire({
                     icon: 'info',
-                    title: 'Yêu cầu đăng nhập',
-                    text: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.',
-                    confirmButtonText: 'Đăng nhập',
+                    title: 'Đăng nhập để mua sách',
+                    text: 'Bạn cần đăng nhập tài khoản để thêm sách vào giỏ hàng và đặt mua.',
+                    confirmButtonText: '<i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập ngay',
                     showCancelButton: true,
-                    cancelButtonText: 'Để sau'
+                    cancelButtonText: 'Để sau',
+                    confirmButtonColor: '#2563eb'
                 }).then((r) => {
                     if (r.isConfirmed) window.location.href = '/login.html';
                 });
@@ -239,35 +656,43 @@
             try {
                 const res = await api.post('/cart/add', { MaSach: maSach, SoLuong: 1 });
                 if (res.success) {
-                    showToast('Đã thêm sách vào giỏ hàng!', 'success');
+                    showToast('Đã thêm sách vào giỏ hàng thành công!', 'success');
                     updateCartCount();
                 }
             } catch (err) {
-                showToast(err.message, 'error');
+                showToast(err.message || 'Không thể thêm sách vào giỏ hàng', 'error');
             }
         }
 
         async function loadHomeData() {
+            startCountdown();
+
             try {
-                // 1. Tải Flash sale
+                // 1. Tải Flash Sale Books
                 const saleRes = await api.get('/sach', { is_sale: true, per_page: 4 });
                 const flashContainer = document.getElementById('flashSaleContainer');
-                if (saleRes.success && saleRes.data.length > 0) {
-                    flashContainer.innerHTML = saleRes.data.map(renderBookCard).join('');
+                if (saleRes.success && saleRes.data && saleRes.data.length > 0) {
+                    flashContainer.innerHTML = saleRes.data.map(b => renderBookCard(b, true)).join('');
                 } else {
-                    flashContainer.innerHTML = '<div class="col-12 text-center text-muted py-4">Hiện chưa có sách khuyến mãi.</div>';
+                    // Fallback tải 4 sách đầu nếu chưa có cờ sale
+                    const fallbackRes = await api.get('/sach', { per_page: 4 });
+                    if (fallbackRes.success && fallbackRes.data.length > 0) {
+                        flashContainer.innerHTML = fallbackRes.data.map(b => renderBookCard(b, true)).join('');
+                    } else {
+                        flashContainer.innerHTML = '<div class="col-12 text-center text-muted py-4">Hiện chưa có sách khuyến mãi.</div>';
+                    }
                 }
 
-                // 2. Tải Sách mới
+                // 2. Tải Sách Mới Tuyển Chọn
                 const newRes = await api.get('/sach', { sort: 'newest', per_page: 8 });
                 const newContainer = document.getElementById('newBooksContainer');
-                if (newRes.success && newRes.data.length > 0) {
-                    newContainer.innerHTML = newRes.data.map(renderBookCard).join('');
+                if (newRes.success && newRes.data && newRes.data.length > 0) {
+                    newContainer.innerHTML = newRes.data.map(b => renderBookCard(b, false)).join('');
                 } else {
                     newContainer.innerHTML = '<div class="col-12 text-center text-muted py-4">Chưa có dữ liệu sách.</div>';
                 }
             } catch (err) {
-                console.error(err);
+                console.error('Lỗi khi tải dữ liệu trang chủ:', err);
             }
         }
 
