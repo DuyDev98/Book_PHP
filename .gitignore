@@ -1,0 +1,29 @@
+# Dependencies
+/vendor/
+/backend/vendor/
+/node_modules/
+/backend/node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+/backend/.env
+/backend/.env.*
+!/backend/.env.example
+
+# Logs & caches
+*.log
+/backend/storage/logs/*.log
+/backend/storage/framework/cache/data/*
+!/backend/storage/framework/cache/data/.gitignore
+/backend/storage/framework/sessions/*
+!/backend/storage/framework/sessions/.gitignore
+/backend/storage/framework/views/*
+!/backend/storage/framework/views/.gitignore
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
