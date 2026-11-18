@@ -265,60 +265,10 @@
                     <a href="/books.html" class="text-decoration-none fw-bold small text-primary">Xem tất cả danh mục →</a>
                 </div>
 
-                <div class="row g-3">
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="/books.html?category=1" class="category-card">
-                            <div class="category-icon-bubble" style="background: #e0f2fe; color: #0284c7;">
-                                <i class="bi bi-book"></i>
-                            </div>
-                            <span class="category-name">Văn Học</span>
-                            <span class="category-count">Tiểu thuyết, Thơ</span>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="/books.html?category=2" class="category-card">
-                            <div class="category-icon-bubble" style="background: #fef3c7; color: #d97706;">
-                                <i class="bi bi-graph-up-arrow"></i>
-                            </div>
-                            <span class="category-name">Kinh Tế</span>
-                            <span class="category-count">Quản trị, Đầu tư</span>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="/books.html?category=3" class="category-card">
-                            <div class="category-icon-bubble" style="background: #dcfce7; color: #16a34a;">
-                                <i class="bi bi-laptop"></i>
-                            </div>
-                            <span class="category-name">Công Nghệ</span>
-                            <span class="category-count">Lập trình, AI, Web</span>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="/books.html?category=4" class="category-card">
-                            <div class="category-icon-bubble" style="background: #f3e8ff; color: #9333ea;">
-                                <i class="bi bi-lightbulb"></i>
-                            </div>
-                            <span class="category-name">Kỹ Năng Sống</span>
-                            <span class="category-count">Tâm lý, Phát triển</span>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="/books.html?category=7" class="category-card">
-                            <div class="category-icon-bubble" style="background: #ffedd5; color: #ea580c;">
-                                <i class="bi bi-rocket-takeoff"></i>
-                            </div>
-                            <span class="category-name">Khởi Nghiệp</span>
-                            <span class="category-count">Kinh doanh, Startup</span>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="/books.html" class="category-card">
-                            <div class="category-icon-bubble" style="background: #ede9fe; color: #6d28d9;">
-                                <i class="bi bi-grid-fill"></i>
-                            </div>
-                            <span class="category-name">Xem Thêm</span>
-                            <span class="category-count">Đầy đủ thể loại</span>
-                        </a>
+                <div id="categoryGrid" class="row g-3">
+                    <div class="col-12 text-center py-4">
+                        <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+                        <span class="text-muted small ms-2">Đang tải danh mục...</span>
                     </div>
                 </div>
             </section>
@@ -664,8 +614,56 @@
             }
         }
 
+        const categoryIconMap = {
+            'Văn Học': { icon: 'bi-book-half', bg: '#e0f2fe', color: '#0284c7' },
+            'Kinh Tế': { icon: 'bi-graph-up-arrow', bg: '#fef3c7', color: '#d97706' },
+            'Công Nghệ': { icon: 'bi-laptop', bg: '#dcfce7', color: '#16a34a' },
+            'Kỹ Năng': { icon: 'bi-lightbulb', bg: '#f3e8ff', color: '#9333ea' },
+            'Tâm Lý': { icon: 'bi-heart-pulse', bg: '#fce7f3', color: '#db2777' },
+            'Thiếu Nhi': { icon: 'bi-balloon', bg: '#ffedd5', color: '#ea580c' },
+            'Lịch Sử': { icon: 'bi-hourglass-split', bg: '#f1f5f9', color: '#475569' },
+            'Ngoại Ngữ': { icon: 'bi-translate', bg: '#ecfeff', color: '#0891b2' },
+            'Nuôi Dạy Con': { icon: 'bi-people', bg: '#fef9c3', color: '#ca8a04' },
+            'Khởi Nghiệp': { icon: 'bi-rocket-takeoff', bg: '#ffe4e6', color: '#e11d48' }
+        };
+
+        function getCategoryStyle(name) {
+            for (const [key, val] of Object.entries(categoryIconMap)) {
+                if (name.includes(key)) return val;
+            }
+            return { icon: 'bi-journal-bookmark', bg: '#f1f5f9', color: '#2563eb' };
+        }
+
+        async function loadCategories() {
+            try {
+                const res = await api.get('/danhmuc');
+                if (res.success && res.data && res.data.tree) {
+                    const grid = document.getElementById('categoryGrid');
+                    grid.innerHTML = res.data.tree.slice(0, 6).map(cat => {
+                        const style = getCategoryStyle(cat.TenDanhMuc);
+                        const count = cat.total_books || cat.sachs_count || 0;
+                        const countText = count > 0 ? `${count} cuốn` : 'Chọn lọc';
+                        return `
+                            <div class="col-6 col-md-4 col-lg-2">
+                                <a href="/books.html?category_id=${cat.MaDanhMuc}" class="category-card">
+                                    <div class="category-icon-bubble" style="background: ${style.bg}; color: ${style.color};">
+                                        <i class="bi ${style.icon}"></i>
+                                    </div>
+                                    <span class="category-name text-truncate w-100" title="${cat.TenDanhMuc}">${cat.TenDanhMuc}</span>
+                                    <span class="category-count">${countText}</span>
+                                </a>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (e) {
+                console.error('Lỗi khi tải danh mục:', e);
+            }
+        }
+
         async function loadHomeData() {
             startCountdown();
+            loadCategories();
 
             try {
                 // 1. Tải Flash Sale Books

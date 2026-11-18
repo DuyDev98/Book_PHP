@@ -15,7 +15,15 @@ class CatalogController extends Controller
     public function getCategories()
     {
         // Lấy danh mục gốc kèm danh mục con (Cây danh mục đa cấp) và đếm số sách
-        $categories = DanhMuc::with('children')->withCount('sachs')->whereNull('ParentID')->get();
+        $categories = DanhMuc::with(['children' => function ($q) {
+            $q->withCount('sachs');
+        }])->withCount('sachs')->whereNull('ParentID')->get();
+
+        $categories->each(function ($cat) {
+            $childrenCount = $cat->children->sum('sachs_count');
+            $cat->total_books = $cat->sachs_count + $childrenCount;
+        });
+
         $allCategories = DanhMuc::withCount('sachs')->get();
 
         return response()->json([
